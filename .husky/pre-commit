@@ -1,0 +1,13 @@
+echo "🔍 Running pre-commit hooks..."
+
+# gitleaks 扫描当前的未提交改动，确保没有泄露密钥
+if command -v gitleaks &> /dev/null; then
+  echo "🛡️  Checking for secrets..."
+  gitleaks protect --staged --verbose
+else
+  echo "🚫 gitleaks is not installed, please install it to enhance security."
+  exit 1
+fi
+
+echo "✅ Pre-commit hooks completed successfully"
+exit 0
