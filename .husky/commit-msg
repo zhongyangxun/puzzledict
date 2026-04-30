@@ -1,0 +1,6 @@
+echo "🔍 Running commit-msg hooks..."
+
+npx --no -- commitlint --edit $1
+
+echo "✅ Commit-msg hooks completed successfully"
+exit 0
