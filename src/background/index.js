@@ -73,6 +73,72 @@ function cleanVariantInfo(translation) {
   return result.join('\n');
 }
 
+async function handleTranslation(text) {
+  const dict = await loadDict();
+  const wordRoots = await loadWordRoots();
+
+  let lookupKey = text;
+  let definition = dict[lookupKey];
+  let variantInfo = null;
+
+  if (!definition) {
+    lookupKey = text.toLowerCase();
+    definition = dict[lookupKey];
+  }
+
+  // 查询变体信息
+  const reverseIndex = await loadReverseIndex();
+  variantInfo = reverseIndex[lookupKey];
+
+  if (definition) {
+    // 清洗`translation` 中可能包含的变体信息（变体信息应只由 `variantInfo` 提供）
+    const { translation } = definition;
+    let newTranslation = cleanVariantInfo(translation);
+    // 如果清洗后，`translation` 为空，则尝试使用原型词的 `translation`
+    if (!newTranslation && variantInfo) {
+      const { exchangeWord } = variantInfo;
+      const exchangeWordDefinition = dict[exchangeWord];
+      if (exchangeWordDefinition) {
+        newTranslation = exchangeWordDefinition.translation;
+      }
+    }
+    // `newTranslation` 不为空，且与原`translation` 不同，则更新`translation`
+    if (newTranslation && newTranslation !== translation) {
+      definition = {
+        ...definition,
+        translation: newTranslation,
+      };
+    }
+  }
+  // 如果没有 `definition`，则尝试使用变体信息查询原型词的 `definition`
+  // 原型词的 `translation` 不用清洗变体信息，因为它不会包含 "xx的复数", "xx的过去式", "xx的过去分词" 等内容
+  else if (variantInfo) {
+    const { exchangeWord } = variantInfo;
+    definition = dict[exchangeWord];
+  }
+
+  const root = wordRoots[lookupKey];
+  const pronunciationText = PRONUNCIATION_FIX_MAP.has(lookupKey)
+    ? PRONUNCIATION_FIX_MAP.get(lookupKey)
+    : lookupKey;
+
+  if (definition) {
+    return {
+      lookupKey,
+      definition,
+      root,
+      variantInfo,
+      pronunciationText,
+    };
+  } else {
+    // TODO: 请求 API 查词
+    return {
+      definition: null,
+      root: null,
+    };
+  }
+}
+
 // 插件安装或更新时触发
 chrome.runtime.onInstalled.addListener(() => {
   console.log('插件已安装/更新');
@@ -89,71 +155,11 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 });
 
-chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'translate') {
     const { text } = message;
-    const dict = await loadDict();
-    const wordRoots = await loadWordRoots();
-
-    let lookupKey = text;
-    let definition = dict[lookupKey];
-    let variantInfo = null;
-
-    if (!definition) {
-      lookupKey = text.toLowerCase();
-      definition = dict[lookupKey];
-    }
-
-    // 查询变体信息
-    const reverseIndex = await loadReverseIndex();
-    variantInfo = reverseIndex[lookupKey];
-
-    if (definition) {
-      // 清洗`translation` 中可能包含的变体信息（变体信息应只由 `variantInfo` 提供）
-      const { translation } = definition;
-      let newTranslation = cleanVariantInfo(translation);
-      // 如果清洗后，`translation` 为空，则尝试使用原型词的 `translation`
-      if (!newTranslation && variantInfo) {
-        const { exchangeWord } = variantInfo;
-        const exchangeWordDefinition = dict[exchangeWord];
-        if (exchangeWordDefinition) {
-          newTranslation = exchangeWordDefinition.translation;
-        }
-      }
-      // `newTranslation` 不为空，且与原`translation` 不同，则更新`translation`
-      if (newTranslation && newTranslation !== translation) {
-        definition = {
-          ...definition,
-          translation: newTranslation,
-        };
-      }
-    }
-    // 如果没有 `definition`，则尝试使用变体信息查询原型词的 `definition`
-    // 原型词的 `translation` 不用清洗变体信息，因为它不会包含 "xx的复数", "xx的过去式", "xx的过去分词" 等内容
-    else if (variantInfo) {
-      const { exchangeWord } = variantInfo;
-      definition = dict[exchangeWord];
-    }
-
-    const root = wordRoots[lookupKey];
-    const pronunciationText = PRONUNCIATION_FIX_MAP.has(lookupKey)
-      ? PRONUNCIATION_FIX_MAP.get(lookupKey)
-      : lookupKey;
-
-    if (definition) {
-      sendResponse({
-        lookupKey,
-        definition,
-        root,
-        variantInfo,
-        pronunciationText,
-      });
-    } else {
-      // TODO: 请求 API 查词
-      sendResponse({
-        definition: null,
-        root: null,
-      });
-    }
+    handleTranslation(text).then(sendResponse);
+    // sendResponse 将异步调用，需同步返回 true 以保持消息通道开放（否则 service worker 唤醒后端口会提前关闭）
+    return true;
   }
 });
