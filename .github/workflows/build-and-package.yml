@@ -30,9 +30,9 @@ jobs:
       - name: Build with Rollup
         run: npm run build
 
-      # 将 zip 包上传为 Artifacts（产物）
+      # 上传 Artifacts（产物）
       - name: Upload Artifact
         uses: actions/upload-artifact@v6
         with:
           name: select-to-translate-latest # 下载时的文件名
-          path: select-to-translate.zip
+          path: dist/
