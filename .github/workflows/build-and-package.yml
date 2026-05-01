@@ -3,7 +3,7 @@ name: build and package
 # 触发条件：当你推送到 main 分支，或者手动在 Actions 页面点击触发
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch: # 允许手动点击运行
 
 jobs:
@@ -13,18 +13,18 @@ jobs:
     steps:
       # 拉取代码
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # 安装 Node.js 环境
-      - name: Set up Node.js
-        uses: actions/checkout@v4
+      - name: Setup node
+        uses: actions/setup-node@v5
         with:
-          node-version: '20' # 建议用 LTS 版本
-          cache: 'npm'       # 自动缓存 node_modules，下次跑飞快
+          node-version: lts/*
+          cache: 'npm' # 自动缓存 node_modules
 
       # 安装依赖
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       # 执行 Rollup 打包
       - name: Build with Rollup
@@ -36,7 +36,7 @@ jobs:
 
       # 将 zip 包上传为 Artifacts（产物）
       - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: select-to-translate-latest # 下载时的文件名
           path: select-to-translate.zip
