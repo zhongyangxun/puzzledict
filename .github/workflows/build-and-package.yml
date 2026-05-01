@@ -30,10 +30,6 @@ jobs:
       - name: Build with Rollup
         run: npm run build
 
-      # 自动压缩 dist 文件夹为 zip
-      - name: Zip extension
-        run: zip -r select-to-translate.zip dist/
-
       # 将 zip 包上传为 Artifacts（产物）
       - name: Upload Artifact
         uses: actions/upload-artifact@v6
