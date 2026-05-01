@@ -6,7 +6,17 @@
   "scripts": {
     "dev": "rollup -c -w",
     "build": "rollup -c",
-    "prepare": "husky"
+    "prepare": "husky",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check"
+  },
+  "lint-staged": {
+    "**/*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "repository": {
     "type": "git",
@@ -24,7 +34,12 @@
     "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^20.5.3",
     "csv-parse": "^6.2.1",
+    "eslint": "^10.2.1",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.5.0",
     "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.3",
     "rollup": "^4.60.2",
     "rollup-plugin-copy": "^3.5.0"
   }
