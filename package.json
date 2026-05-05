@@ -4,13 +4,14 @@
   "description": "A Chrome extention for translating selected text.",
   "main": "content.js",
   "scripts": {
-    "dev": "rollup -c -w",
-    "build": "rollup -c",
+    "dev": "rollup -c -w --environment NODE_ENV:development",
+    "build": "rollup -c --environment NODE_ENV:production",
     "prepare": "husky",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
-    "format:check": "prettier . --check"
+    "format:check": "prettier . --check",
+    "log:server": "node scripts/remote-log-server.js"
   },
   "lint-staged": {
     "**/*.js": [
@@ -33,6 +34,7 @@
   "devDependencies": {
     "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^20.5.3",
+    "@rollup/plugin-replace": "^6.0.3",
     "csv-parse": "^6.2.1",
     "eslint": "^10.2.1",
     "eslint-config-prettier": "^10.1.8",
