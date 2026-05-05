@@ -1,5 +1,12 @@
 import { EXCHANGES } from '../lib/exchanges.js';
 import { PRONUNCIATION_FIX_MAP } from '../lib/pronunciation.js';
+import { initLogger } from './remote-log-client.js';
+
+// 仅在开发模式下激活远程日志（initLogger 内部会判断 NODE_ENV）
+if (process.env.NODE_ENV === 'development') {
+  initLogger();
+  console.log('🚀 Remote Log Client 已激活');
+}
 
 let dict = null;
 let wordRoots = null;
