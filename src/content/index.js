@@ -35,17 +35,24 @@ document.addEventListener('mouseup', async (e) => {
 
   console.log('response', response);
 
+  const { data, message } = response;
+
   const {
     lookupKey = text,
     definition,
     root,
     variantInfo,
     pronunciationText,
-  } = response || {};
+  } = data || {};
 
-  panel
-    .stopLoading()
-    .setContent(lookupKey, definition, root, variantInfo, pronunciationText);
+  panel.stopLoading().setContent({
+    word: lookupKey,
+    definition,
+    root,
+    variantInfo,
+    pronunciationText,
+    message,
+  });
 });
 
 document.addEventListener('mousedown', (e) => {

@@ -23,6 +23,7 @@ const VALID_POS_TAGS = new Set([
 ]);
 
 const ATTR_PRONUNCIATION = 'data-pronunciation';
+const DEFAULT_NOT_FOUND_TEXT = '未找到该单词';
 
 function isValidPOS(pos) {
   return VALID_POS_TAGS.has(pos);
@@ -40,6 +41,7 @@ export default class Panel {
   #rootListEl = null;
   #compositionEl = null;
   #targetRect = null;
+  #notFoundTextEl = null;
 
   constructor(host, shadow) {
     this.#host = host;
@@ -51,6 +53,7 @@ export default class Panel {
     this.#phoneticEl = shadow.querySelector('.phonetic');
     this.#rootListEl = shadow.querySelector('.root-list');
     this.#compositionEl = shadow.querySelector('.composition');
+    this.#notFoundTextEl = shadow.querySelector('.not-found-text-content');
 
     shadow
       .querySelector('.close-btn')
@@ -190,7 +193,14 @@ export default class Panel {
     return this;
   }
 
-  setContent(word, definition, root, variantInfo, pronunciationText) {
+  setContent({
+    word,
+    definition,
+    root,
+    variantInfo,
+    pronunciationText,
+    message,
+  }) {
     this.#wordEl.textContent = word;
     if (definition) {
       const { phonetic, translation } = definition;
@@ -225,6 +235,7 @@ export default class Panel {
       }
     } else {
       this.#panel.classList.add('not-found');
+      this.#notFoundTextEl.textContent = message || DEFAULT_NOT_FOUND_TEXT;
     }
 
     // 渲染完内容后，实际高度可能发生变化，需要更新位置
@@ -271,6 +282,7 @@ export default class Panel {
       item.textContent = '';
     });
     this.#compositionEl.textContent = '';
+    this.#notFoundTextEl.textContent = DEFAULT_NOT_FOUND_TEXT;
 
     return this;
   }
