@@ -12,6 +12,31 @@ if (process.env.NODE_ENV === 'development') {
 let dict = null;
 let wordRoots = null;
 let reverseIndex = null;
+let clientId = null;
+// TODO(rate-limit): dedupe concurrent getClientId() calls to avoid racing multiple UUID writes
+// (can cause the same user to be treated as multiple clients briefly, affecting rate limiting metrics).
+
+async function getClientId() {
+  if (clientId) return clientId;
+
+  try {
+    const { clientId: storedClientId } = await chrome.storage.local.get({
+      clientId: null,
+    });
+    if (storedClientId) {
+      clientId = storedClientId;
+      return clientId;
+    }
+  } catch (err) {
+    console.log('getClientId error', err);
+  }
+
+  clientId = crypto.randomUUID();
+  // TODO(rate-limit): wrap storage.set in try/catch and gracefully fall back to in-memory clientId
+  // so lookup doesn't fail/hang if storage is temporarily unavailable.
+  await chrome.storage.local.set({ clientId });
+  return clientId;
+}
 
 async function loadDict() {
   if (dict) return dict;
@@ -88,6 +113,7 @@ async function handleTranslation(text) {
   let lookupKey = text;
   let definition = dict[lookupKey];
   let variantInfo = null;
+  let errMessage = '';
 
   if (!definition) {
     lookupKey = text.toLowerCase();
@@ -132,11 +158,18 @@ async function handleTranslation(text) {
   // 仍然没有结果，请求 API
   if (!definition) {
     console.log('请求 API 查词', text);
-    const response = await queryDictionary(text);
+    const clientId = await getClientId();
+    console.log('clientId', clientId);
+    const { status, message, data } = await queryDictionary(text, clientId);
+    console.log('response', {
+      status,
+      message,
+      data,
+    });
 
-    if (response) {
-      definition = response;
-      const { translation } = response;
+    if (status === 200) {
+      definition = data;
+      const { translation } = data;
       let newTranslation = cleanVariantInfo(translation);
       if (newTranslation && newTranslation !== translation) {
         definition = {
@@ -144,6 +177,8 @@ async function handleTranslation(text) {
           translation: newTranslation,
         };
       }
+    } else {
+      errMessage = message;
     }
   }
 
@@ -154,16 +189,19 @@ async function handleTranslation(text) {
 
   if (definition) {
     return {
-      lookupKey,
-      definition,
-      root,
-      variantInfo,
-      pronunciationText,
+      isSuccess: true,
+      data: {
+        lookupKey,
+        definition,
+        root,
+        variantInfo,
+        pronunciationText,
+      },
     };
   } else {
     return {
-      definition: null,
-      root: null,
+      isSuccess: false,
+      message: errMessage,
     };
   }
 }
