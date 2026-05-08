@@ -1,5 +1,6 @@
 import { EXCHANGES } from '../lib/exchanges.js';
 import { PRONUNCIATION_FIX_MAP } from '../lib/pronunciation.js';
+import { queryDictionary } from '../service/dictionary-api.js';
 import { initLogger } from './remote-log-client.js';
 
 // 仅在开发模式下激活远程日志（initLogger 内部会判断 NODE_ENV）
@@ -97,6 +98,10 @@ async function handleTranslation(text) {
   const reverseIndex = await loadReverseIndex();
   variantInfo = reverseIndex[lookupKey];
 
+  // 三层逐级降级查找（不用 else if，避免中间层失败时跳过后续降级路径）
+  // 1. 本地词库直接命中
+  // 2. 通过变体信息查原型词（免网络请求）
+  // 3. 请求远程 API
   if (definition) {
     // 清洗`translation` 中可能包含的变体信息（变体信息应只由 `variantInfo` 提供）
     const { translation } = definition;
@@ -117,11 +122,29 @@ async function handleTranslation(text) {
       };
     }
   }
-  // 如果没有 `definition`，则尝试使用变体信息查询原型词的 `definition`
-  // 原型词的 `translation` 不用清洗变体信息，因为它不会包含 "xx的复数", "xx的过去式", "xx的过去分词" 等内容
-  else if (variantInfo) {
+
+  // 本地词库未命中，尝试通过变体信息查原型词
+  if (!definition && variantInfo) {
     const { exchangeWord } = variantInfo;
     definition = dict[exchangeWord];
+  }
+
+  // 仍然没有结果，请求 API
+  if (!definition) {
+    console.log('请求 API 查词', text);
+    const response = await queryDictionary(text);
+
+    if (response) {
+      definition = response;
+      const { translation } = response;
+      let newTranslation = cleanVariantInfo(translation);
+      if (newTranslation && newTranslation !== translation) {
+        definition = {
+          ...definition,
+          translation: newTranslation,
+        };
+      }
+    }
   }
 
   const root = wordRoots[lookupKey];
@@ -138,7 +161,6 @@ async function handleTranslation(text) {
       pronunciationText,
     };
   } else {
-    // TODO: 请求 API 查词
     return {
       definition: null,
       root: null,
