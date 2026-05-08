@@ -207,6 +207,7 @@
           <h1>划词翻译测试</h1>
           <p class="hint">在下方单词或句子中拖选文字，触发扩展的划词翻译。</p>
         </div>
+        <button type="button" id="reload-btn" class="theme-toggle">刷新</button>
         <button
           type="button"
           id="theme-toggle"
@@ -471,6 +472,16 @@
           });
           mqDark.addEventListener('change', function () {
             if (!storedTheme()) syncThemeButton();
+          });
+        }
+      })();
+    </script>
+    <script>
+      (function () {
+        var reloadBtn = document.getElementById('reload-btn');
+        if (reloadBtn) {
+          reloadBtn.addEventListener('click', function () {
+            location.reload();
           });
         }
       })();
