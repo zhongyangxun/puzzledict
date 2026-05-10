@@ -12,16 +12,26 @@ export async function queryDictionary(text, clientId) {
     };
   }
 
-  // TODO(rate-limit): handle network errors (fetch throws) and always return a structured
-  // { status, message, data } object so the UI can stop loading and show a helpful message.
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Client-Id': clientId,
-    },
-    body: JSON.stringify({ lookup_key: text }),
-  });
+  let response = null;
+  try {
+    // { status, message, data } object so the UI can stop loading and show a helpful message.
+    response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Client-Id': clientId,
+      },
+      signal: AbortSignal.timeout(3000), // 3s 超时
+      body: JSON.stringify({ lookup_key: text }),
+    });
+  } catch (error) {
+    console.error('请求超时', error);
+    return {
+      status: 504,
+      message: '请求超时，请稍后再试',
+      data: null,
+    };
+  }
 
   const { status } = response;
 
