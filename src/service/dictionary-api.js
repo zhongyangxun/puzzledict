@@ -1,6 +1,17 @@
+import { getCache, setCache } from './cache';
+
 const API_URL = 'http://127.0.0.1:8789/lookup';
 
 export async function queryDictionary(text, clientId) {
+  const cache = await getCache(text);
+  if (cache) {
+    return {
+      status: 200,
+      message: '查询成功',
+      data: cache,
+    };
+  }
+
   // TODO(rate-limit): handle network errors (fetch throws) and always return a structured
   // { status, message, data } object so the UI can stop loading and show a helpful message.
   const response = await fetch(API_URL, {
@@ -22,10 +33,13 @@ export async function queryDictionary(text, clientId) {
     };
   }
 
+  const data = await response.json();
+  await setCache(text, data);
+
   return {
     status,
     message: getMessage(status),
-    data: await response.json(),
+    data,
   };
 }
 
