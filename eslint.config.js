@@ -23,6 +23,17 @@ export default [
       // 允许使用 console
       // TODO:  打包时删除 console.log
       'no-console': 'off',
+      'no-undef': 'error',
+    },
+  },
+
+  // 仅此文件在源码层使用 process（供 Rollup 替换）；其余 src 误写 process.* 会 no-undef
+  {
+    files: ['src/lib/build-env.js'],
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+      },
     },
   },
 
@@ -38,6 +49,7 @@ export default [
     },
     rules: {
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-undef': 'error',
     },
   },
 

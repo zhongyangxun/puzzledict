@@ -1,6 +1,7 @@
+import { IS_DEV } from '../lib/build-env.js';
+
 export function initLogger() {
-  // 仅在开发模式下生效（基于构建工具的环境变量）
-  if (process.env.NODE_ENV !== 'development') return;
+  if (!IS_DEV) return;
   const nativeLog = console.log;
   console.log = (...args) => {
     nativeLog(...args);
