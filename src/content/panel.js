@@ -42,6 +42,7 @@ export default class Panel {
   #compositionEl = null;
   #targetRect = null;
   #notFoundTextEl = null;
+  #sessionId = 0;
 
   constructor(host, shadow) {
     this.#host = host;
@@ -86,6 +87,10 @@ export default class Panel {
 
   get host() {
     return this.#host;
+  }
+
+  get sessionId() {
+    return this.#sessionId;
   }
 
   setPosition(targetRect) {
@@ -289,11 +294,13 @@ export default class Panel {
 
   hide() {
     this.#host.style.display = 'none';
+    this.#sessionId++;
     return this;
   }
 
   show() {
     this.#host.style.display = 'block';
+    this.#sessionId++;
     return this;
   }
 
