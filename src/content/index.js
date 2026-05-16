@@ -30,14 +30,36 @@ const isPhrase = (text) => {
 };
 
 const queryDictionary = async (text) => {
-  const response = await chrome.runtime.sendMessage({
-    type: 'translate',
-    text,
-  });
+  if (!chrome.runtime?.id) {
+    return { data: null, message: '扩展已更新，请刷新页面后重试' };
+  }
 
-  console.log('response', response);
+  const fallbackMessage = '请求翻译失败，请稍后重试';
 
-  return response;
+  try {
+    const response = await chrome.runtime.sendMessage({
+      type: 'translate',
+      text,
+    });
+
+    console.log('response', response);
+
+    if (!response) {
+      return {
+        data: null,
+        message: fallbackMessage,
+      };
+    }
+
+    return response;
+  } catch (error) {
+    console.error('queryDictionary error', error);
+
+    return {
+      data: null,
+      message: fallbackMessage,
+    };
+  }
 };
 
 document.addEventListener('mouseup', async (e) => {
@@ -51,6 +73,7 @@ document.addEventListener('mouseup', async (e) => {
   if (isSingleWord(trimed) || isPhrase(trimed)) {
     const rect = getSelectionClientRect(selection, e);
     panel.resetPanel().setLoading().setPosition(rect).show();
+    const sessionId = panel.sessionId;
 
     const response = await queryDictionary(trimed);
     const { data, message } = response;
@@ -62,6 +85,12 @@ document.addEventListener('mouseup', async (e) => {
       variantInfo,
       pronunciationText,
     } = data || {};
+
+    // 若 sessionId 已变更（新查询或已关闭面板），则丢弃本次结果，避免竞态问题
+    if (sessionId !== panel.sessionId) {
+      console.log('sessionId mismatch, abort');
+      return;
+    }
 
     panel.stopLoading().setContent({
       word: lookupKey,
