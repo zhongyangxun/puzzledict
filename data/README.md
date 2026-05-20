@@ -120,7 +120,7 @@ node ./script/extract-priority_test_words.js
 
 数据：[word_roots.json](./word_roots.json)
 
-对常用词数据中前 1000 个具有词根词缀结构的单词进行 AI 标注，记录每个词的构词成分及其语源含义。
+对常用词数据中前 3000 个具有词根词缀结构的单词进行 AI 标注，记录每个词的构词成分及其语源含义。
 
 ### 数据说明
 
