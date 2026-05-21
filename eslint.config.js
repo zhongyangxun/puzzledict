@@ -1,5 +1,6 @@
 import globals from 'globals';
 import prettier from 'eslint-config-prettier';
+import { importX } from 'eslint-plugin-import-x';
 
 export default [
   // 通用
@@ -52,6 +53,8 @@ export default [
       'no-undef': 'error',
     },
   },
+
+  importX.flatConfigs.recommended,
 
   // 关闭与 prettier 冲突的规则
   prettier,
