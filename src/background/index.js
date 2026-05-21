@@ -1,8 +1,10 @@
 import { IS_DEV } from '../lib/build-env.js';
+import { QUERY_DICT, TRANSLATE_SENTENCE } from '../lib/messgae-types.js';
 import { EXCHANGES } from '../lib/exchanges.js';
 import { PRONUNCIATION_FIX_MAP } from '../lib/pronunciation.js';
 import { queryDictionary } from '../service/dictionary-api.js';
 import { initLogger } from './remote-log-client.js';
+import { translateSentence } from '../service/translate.js';
 
 // 仅在开发模式下激活远程日志（initLogger 内部会判断 IS_DEV）
 if (IS_DEV) {
@@ -107,7 +109,7 @@ function cleanVariantInfo(translation) {
   return result.join('\n');
 }
 
-async function handleTranslation(text) {
+async function handleQueryDictionary(text) {
   const dict = await loadDict();
   const wordRoots = await loadWordRoots();
 
@@ -207,6 +209,15 @@ async function handleTranslation(text) {
   }
 }
 
+async function handleTranslateSentence(text) {
+  const { status, message, data } = await translateSentence(text);
+  return {
+    isSuccess: status === 200,
+    message,
+    data,
+  };
+}
+
 // 插件安装或更新时触发
 chrome.runtime.onInstalled.addListener(() => {
   console.log('插件已安装/更新');
@@ -224,10 +235,15 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === 'translate') {
+  if (message.type === QUERY_DICT) {
     const { text } = message;
-    handleTranslation(text).then(sendResponse);
+    handleQueryDictionary(text).then(sendResponse);
     // sendResponse 将异步调用，需同步返回 true 以保持消息通道开放（否则 service worker 唤醒后端口会提前关闭）
+    return true;
+  }
+  if (message.type === TRANSLATE_SENTENCE) {
+    const { text } = message;
+    handleTranslateSentence(text).then(sendResponse);
     return true;
   }
 });

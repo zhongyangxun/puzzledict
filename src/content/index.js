@@ -1,9 +1,13 @@
-import Panel from './panel';
+import { QUERY_DICT, TRANSLATE_SENTENCE } from '../lib/message-types';
+import Panel, { PANEL_MODE } from './panel';
 import { getSelectionClientRect } from './selection-rect';
 
 console.log('content script load');
 
 const panel = Panel.create();
+const FALLBACK_MESSAGE = '请求翻译失败，请稍后重试';
+
+const isMainlyEnglish = (text) => /^[\x20-\x7E]+$/.test(text.trim());
 
 const isSingleWord = (text) => {
   const trimmedText = text.trim();
@@ -29,16 +33,24 @@ const isPhrase = (text) => {
   return hasSpace && wordCount > 1 && wordCount <= 10 && !hasSentenceEnd;
 };
 
-const queryDictionary = async (text) => {
+const isSentence = (text) => {
+  const trimmed = text.trim();
+  if (trimmed.length < 2 || trimmed.length > 5000) return false;
+
+  const wordCount = trimmed.split(/\s+/).length;
+  const hasSentenceEnd = /[.!?。！？\n]/.test(trimmed);
+
+  return wordCount > 10 || hasSentenceEnd;
+};
+
+const requestLookup = async (text, type) => {
   if (!chrome.runtime?.id) {
     return { data: null, message: '扩展已更新，请刷新页面后重试' };
   }
 
-  const fallbackMessage = '请求翻译失败，请稍后重试';
-
   try {
     const response = await chrome.runtime.sendMessage({
-      type: 'translate',
+      type,
       text,
     });
 
@@ -47,17 +59,17 @@ const queryDictionary = async (text) => {
     if (!response) {
       return {
         data: null,
-        message: fallbackMessage,
+        message: FALLBACK_MESSAGE,
       };
     }
 
     return response;
   } catch (error) {
-    console.error('queryDictionary error', error);
+    console.error('translate error', error);
 
     return {
       data: null,
-      message: fallbackMessage,
+      message: FALLBACK_MESSAGE,
     };
   }
 };
@@ -70,36 +82,79 @@ document.addEventListener('mouseup', async (e) => {
   const selection = document.getSelection();
   const trimed = selection.toString().trim();
 
-  if (isSingleWord(trimed) || isPhrase(trimed)) {
+  if (!isMainlyEnglish(trimed)) {
+    return;
+  }
+
+  if (isSingleWord(trimed) || isPhrase(trimed) || isSentence(trimed)) {
     const rect = getSelectionClientRect(selection, e);
-    panel.resetPanel().setLoading().setPosition(rect).show();
-    const sessionId = panel.sessionId;
+    let sessionId = null;
+    const mode =
+      isSingleWord(trimed) || isPhrase(trimed)
+        ? PANEL_MODE.DICT
+        : PANEL_MODE.TRANSLATE;
 
-    const response = await queryDictionary(trimed);
-    const { data, message } = response;
+    console.log('mode', mode);
+    console.log('rect', rect);
 
-    const {
-      lookupKey = trimed,
-      definition,
-      root,
-      variantInfo,
-      pronunciationText,
-    } = data || {};
+    panel
+      .resetPanel()
+      .setMode(mode)
+      .setLoading()
+      .setPosition(rect)
+      .show((id) => {
+        sessionId = id;
+      });
+
+    let response = null;
+
+    if (mode === PANEL_MODE.DICT) {
+      response = await requestLookup(trimed, QUERY_DICT);
+    } else {
+      response = await requestLookup(trimed, TRANSLATE_SENTENCE);
+    }
 
     // 若 sessionId 已变更（新查询或已关闭面板），则丢弃本次结果，避免竞态问题
-    if (sessionId !== panel.sessionId) {
+    if (!panel.isCurrentSession(sessionId)) {
       console.log('sessionId mismatch, abort');
       return;
     }
 
-    panel.stopLoading().setContent({
-      word: lookupKey,
-      definition,
-      root,
-      variantInfo,
-      pronunciationText,
-      message,
-    });
+    if (mode === PANEL_MODE.DICT) {
+      const { data, message } = response || {
+        data: null,
+        message: FALLBACK_MESSAGE,
+      };
+
+      const {
+        lookupKey = trimed,
+        definition,
+        root,
+        variantInfo,
+        pronunciationText,
+      } = data || {};
+
+      panel.stopLoading().setDictContent({
+        word: lookupKey,
+        definition,
+        root,
+        variantInfo,
+        pronunciationText,
+        message,
+      });
+    }
+
+    if (mode === PANEL_MODE.TRANSLATE) {
+      console.log('translate response', response);
+
+      const { data, message } = response || {
+        data: null,
+        message: FALLBACK_MESSAGE,
+      };
+      const { query = trimed, translation } = data;
+
+      panel.stopLoading().setTranslateContent({ query, translation, message });
+    }
   }
 });
 
@@ -108,3 +163,31 @@ document.addEventListener('mousedown', (e) => {
     panel.hide().resetPanel();
   }
 });
+
+// if (window.location.href.includes('localhost')) {
+//   // * 测试代码
+//   const rectObj = {
+//     x: 305.20001220703125,
+//     y: 880.1500244140625,
+//     width: 593.5999755859375,
+//     height: 71.20001220703125,
+//     top: 880.1500244140625,
+//     right: 898.7999877929688,
+//     bottom: 951.3500366210938,
+//     left: 305.20001220703125,
+//   };
+
+//   const rect = new DOMRect(rectObj.x, rectObj.y, rectObj.width, rectObj.height);
+//   panel
+//     .resetPanel()
+//     .setMode(PANEL_MODE.TRANSLATE)
+//     .setLoading()
+//     .setPosition(rect)
+//     .show()
+//     .setTranslateContent({
+//       query:
+//         'The quick brown fox jumps over the lazy dog. Learning a language takes patience and consistent practice. Try selecting individual words or whole phrases above and below.',
+//       translation:
+//         '敏捷的棕色狐狸跳过了懒惰的狗。学习一门语言需要耐心和持续的练习。试着在上面和下面选择单个单词或整个短语。',
+//     });
+// }
