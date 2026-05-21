@@ -24,6 +24,7 @@ const VALID_POS_TAGS = new Set([
 
 const ATTR_PRONUNCIATION = 'data-pronunciation';
 const DEFAULT_NOT_FOUND_TEXT = '未找到该单词';
+const DEFAULT_FAILED_TEXT = '翻译失败，请稍后重试';
 
 export const PANEL_MODE = {
   DICT: 'dict',
@@ -56,6 +57,7 @@ export default class Panel {
   #sourceTextEl = null;
   #translationEl = null;
   #failedTextEl = null;
+  #expandBtnEl = null;
 
   constructor(host, shadow) {
     this.#host = host;
@@ -76,6 +78,7 @@ export default class Panel {
     this.#sourceTextEl = shadow.querySelector('.source-text');
     this.#translationEl = shadow.querySelector('.translation');
     this.#failedTextEl = shadow.querySelector('.failed-text-content');
+    this.#expandBtnEl = shadow.querySelector('.expand-btn');
 
     shadow.querySelectorAll('.close-btn').forEach((btn) => {
       btn.addEventListener('click', () => this.handleCloseBtnClick());
@@ -84,6 +87,10 @@ export default class Panel {
     shadow
       .querySelector('.audio-btn')
       .addEventListener('click', () => this.playAudio());
+
+    this.#expandBtnEl.addEventListener('click', () =>
+      this.handleExpandBtnClick(),
+    );
 
     this.initThemeObserver();
 
@@ -283,10 +290,22 @@ export default class Panel {
 
   setTranslateContent({ query, translation, message }) {
     if (translation) {
-      this.#sourceTextEl.textContent = query;
+      this.#panel.classList.remove('translate-failed');
+
+      const sourceTextEl = this.#sourceTextEl;
+
+      sourceTextEl.textContent = query;
+
+      if (sourceTextEl.scrollHeight > sourceTextEl.clientHeight) {
+        this.#expandBtnEl.classList.add('show');
+      } else {
+        this.#expandBtnEl.classList.remove('show');
+      }
+
       this.#translationEl.textContent = translation;
     } else {
-      this.#failedTextEl.textContent = message || '翻译失败，请重试';
+      this.#failedTextEl.textContent = message || DEFAULT_FAILED_TEXT;
+      this.#panel.classList.add('translate-failed');
     }
 
     // 渲染完内容后，实际高度可能发生变化，需要更新位置
@@ -306,6 +325,7 @@ export default class Panel {
   }
 
   resetPanel() {
+    // dict mode
     this.#panel.classList.remove(
       'loading',
       'not-found',
@@ -335,7 +355,23 @@ export default class Panel {
     this.#compositionEl.textContent = '';
     this.#notFoundTextEl.textContent = DEFAULT_NOT_FOUND_TEXT;
 
+    // translate mode
+    this.#panel.classList.remove('translate-failed');
+
+    this.#sourceTextEl.textContent = '';
+    this.#sourceTextEl.classList.add('line-clamp-3');
+
+    this.#translationEl.textContent = '';
+    this.#failedTextEl.textContent = DEFAULT_FAILED_TEXT;
+
+    this.#expandBtnEl.classList.remove('show', 'expanded');
+
     return this;
+  }
+
+  handleExpandBtnClick() {
+    this.#sourceTextEl.classList.toggle('line-clamp-3');
+    this.#expandBtnEl.classList.toggle('expanded');
   }
 
   handleCloseBtnClick() {
