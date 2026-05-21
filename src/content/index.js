@@ -163,31 +163,3 @@ document.addEventListener('mousedown', (e) => {
     panel.hide().resetPanel();
   }
 });
-
-// if (window.location.href.includes('localhost')) {
-//   // * 测试代码
-//   const rectObj = {
-//     x: 305.20001220703125,
-//     y: 880.1500244140625,
-//     width: 593.5999755859375,
-//     height: 71.20001220703125,
-//     top: 880.1500244140625,
-//     right: 898.7999877929688,
-//     bottom: 951.3500366210938,
-//     left: 305.20001220703125,
-//   };
-
-//   const rect = new DOMRect(rectObj.x, rectObj.y, rectObj.width, rectObj.height);
-//   panel
-//     .resetPanel()
-//     .setMode(PANEL_MODE.TRANSLATE)
-//     .setLoading()
-//     .setPosition(rect)
-//     .show()
-//     .setTranslateContent({
-//       query:
-//         'The quick brown fox jumps over the lazy dog. Learning a language takes patience and consistent practice. Try selecting individual words or whole phrases above and below.',
-//       translation:
-//         '敏捷的棕色狐狸跳过了懒惰的狗。学习一门语言需要耐心和持续的练习。试着在上面和下面选择单个单词或整个短语。',
-//     });
-// }

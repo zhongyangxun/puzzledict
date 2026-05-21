@@ -130,7 +130,8 @@
     color: var(--muted-foreground);
     transition:
       background-color 0.15s,
-      color 0.15s;
+      color 0.15s,
+      transform 0.15s;
     flex-shrink: 0;
   }
 
@@ -138,6 +139,19 @@
   .expand-btn:hover {
     color: var(--primary);
     background-color: color-mix(in oklch, var(--primary) 10%, transparent);
+  }
+
+  .expand-btn {
+    display: none;
+  }
+
+  .expand-btn.show {
+    display: inline-flex;
+  }
+
+  .expand-btn.expanded {
+    transform: rotate(180deg);
+    transform-origin: center;
   }
 
   .close-btn {
