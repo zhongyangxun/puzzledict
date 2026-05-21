@@ -25,6 +25,11 @@ const VALID_POS_TAGS = new Set([
 const ATTR_PRONUNCIATION = 'data-pronunciation';
 const DEFAULT_NOT_FOUND_TEXT = '未找到该单词';
 
+export const PANEL_MODE = {
+  DICT: 'dict',
+  TRANSLATE: 'translate',
+};
+
 function isValidPOS(pos) {
   return VALID_POS_TAGS.has(pos);
 }
@@ -34,6 +39,10 @@ export default class Panel {
   #host = null;
   #panel = null;
   #shadow = null;
+  #sessionId = null;
+  #mode = null; // 'dict' or 'translate'
+
+  // dict section
   #wordEl = null;
   #variantInfoEl = null;
   #definitionSectionEl = null;
@@ -42,12 +51,19 @@ export default class Panel {
   #compositionEl = null;
   #targetRect = null;
   #notFoundTextEl = null;
-  #sessionId = 0;
+
+  // translate section
+  #sourceTextEl = null;
+  #translationEl = null;
+  #failedTextEl = null;
 
   constructor(host, shadow) {
     this.#host = host;
     this.#shadow = shadow;
     this.#panel = shadow.querySelector('.panel');
+    this.#sessionId = 0;
+
+    // dict section
     this.#wordEl = shadow.querySelector('.word');
     this.#variantInfoEl = shadow.querySelector('.variant-info');
     this.#definitionSectionEl = shadow.querySelector('.definition-section');
@@ -55,6 +71,11 @@ export default class Panel {
     this.#rootListEl = shadow.querySelector('.root-list');
     this.#compositionEl = shadow.querySelector('.composition');
     this.#notFoundTextEl = shadow.querySelector('.not-found-text-content');
+
+    // translate section
+    this.#sourceTextEl = shadow.querySelector('.source-text');
+    this.#translationEl = shadow.querySelector('.translation');
+    this.#failedTextEl = shadow.querySelector('.failed-text-content');
 
     shadow
       .querySelector('.close-btn')
@@ -65,6 +86,7 @@ export default class Panel {
 
     this.initThemeObserver();
 
+    this.setMode(PANEL_MODE.DICT);
     this.hide();
   }
 
@@ -87,10 +109,6 @@ export default class Panel {
 
   get host() {
     return this.#host;
-  }
-
-  get sessionId() {
-    return this.#sessionId;
   }
 
   setPosition(targetRect) {
@@ -198,7 +216,20 @@ export default class Panel {
     return this;
   }
 
-  setContent({
+  setMode(mode = PANEL_MODE.DICT) {
+    const prevMode = this.#mode;
+    if (prevMode === mode) {
+      return this;
+    }
+
+    this.#panel.classList.remove(`mode-${prevMode}`);
+    this.#panel.classList.add(`mode-${mode}`);
+
+    this.#mode = mode;
+    return this;
+  }
+
+  setDictContent({
     word,
     definition,
     root,
@@ -241,6 +272,20 @@ export default class Panel {
     } else {
       this.#panel.classList.add('not-found');
       this.#notFoundTextEl.textContent = message || DEFAULT_NOT_FOUND_TEXT;
+    }
+
+    // 渲染完内容后，实际高度可能发生变化，需要更新位置
+    this.updatePosition();
+
+    return this;
+  }
+
+  setTranslateContent({ query, translation, message }) {
+    if (translation) {
+      this.#sourceTextEl.textContent = query;
+      this.#translationEl.textContent = translation;
+    } else {
+      this.#failedTextEl.textContent = message || '翻译失败，请重试';
     }
 
     // 渲染完内容后，实际高度可能发生变化，需要更新位置
@@ -292,16 +337,26 @@ export default class Panel {
     return this;
   }
 
-  hide() {
+  hide(callback) {
     this.#host.style.display = 'none';
     this.#sessionId++;
+    if (callback) {
+      callback(this.#sessionId);
+    }
     return this;
   }
 
-  show() {
+  show(callback) {
     this.#host.style.display = 'block';
     this.#sessionId++;
+    if (callback) {
+      callback(this.#sessionId);
+    }
     return this;
+  }
+
+  isCurrentSession(sessionId) {
+    return this.#sessionId === sessionId;
   }
 
   isShown() {
