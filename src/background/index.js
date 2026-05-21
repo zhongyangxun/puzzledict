@@ -1,5 +1,5 @@
 import { IS_DEV } from '../lib/build-env.js';
-import { QUERY_DICT, TRANSLATE_SENTENCE } from '../lib/messgae-types.js';
+import { QUERY_DICT, TRANSLATE_SENTENCE } from '../lib/message-types.js';
 import { EXCHANGES } from '../lib/exchanges.js';
 import { PRONUNCIATION_FIX_MAP } from '../lib/pronunciation.js';
 import { queryDictionary } from '../service/dictionary-api.js';
