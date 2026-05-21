@@ -302,16 +302,33 @@
     border-radius: 6px;
   }
 
-  .copy-icon {
+  .copy-icon,
+  .copied-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
   }
 
-  .copy-btn:hover {
+  .copy-btn:hover,
+  .copy-btn.copied {
     color: var(--primary);
     background-color: color-mix(in oklch, var(--primary) 10%, transparent);
+  }
+
+  .copy-btn .copied-icon,
+  .copy-btn .copied-text {
+    display: none;
+  }
+
+  .copy-btn.copied .copied-icon,
+  .copy-btn.copied .copied-text {
+    display: inline-flex;
+  }
+
+  .copy-btn.copied .copy-icon,
+  .copy-btn.copied .copy-text {
+    display: none;
   }
 
   .not-found-section,
@@ -580,6 +597,21 @@
               </svg>
             </span>
             <span class="copy-text">复制译文</span>
+            <span class="copied-icon">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </span>
+            <span class="copied-text">已复制</span>
           </button>
         </div>
       </div>

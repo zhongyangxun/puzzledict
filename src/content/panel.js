@@ -58,6 +58,8 @@ export default class Panel {
   #translationEl = null;
   #failedTextEl = null;
   #expandBtnEl = null;
+  #copyTranslationBtnEl = null;
+  #copyResetTimer = null;
 
   constructor(host, shadow) {
     this.#host = host;
@@ -79,6 +81,7 @@ export default class Panel {
     this.#translationEl = shadow.querySelector('.translation');
     this.#failedTextEl = shadow.querySelector('.failed-text-content');
     this.#expandBtnEl = shadow.querySelector('.expand-btn');
+    this.#copyTranslationBtnEl = shadow.querySelector('.copy-btn');
 
     shadow.querySelectorAll('.close-btn').forEach((btn) => {
       btn.addEventListener('click', () => this.handleCloseBtnClick());
@@ -90,6 +93,10 @@ export default class Panel {
 
     this.#expandBtnEl.addEventListener('click', () =>
       this.handleExpandBtnClick(),
+    );
+
+    this.#copyTranslationBtnEl.addEventListener('click', () =>
+      this.handleCopyTranslationBtnClick(),
     );
 
     this.initThemeObserver();
@@ -366,6 +373,12 @@ export default class Panel {
 
     this.#expandBtnEl.classList.remove('show', 'expanded');
 
+    if (this.#copyResetTimer) {
+      clearTimeout(this.#copyResetTimer);
+      this.#copyResetTimer = null;
+    }
+    this.#copyTranslationBtnEl.classList.remove('copied');
+
     return this;
   }
 
@@ -376,6 +389,27 @@ export default class Panel {
 
   handleCloseBtnClick() {
     this.hide();
+  }
+
+  async handleCopyTranslationBtnClick() {
+    if (this.#copyResetTimer) {
+      return this;
+    }
+
+    const translation = this.#translationEl.textContent;
+    if (translation) {
+      try {
+        await navigator.clipboard.writeText(translation);
+        this.#copyTranslationBtnEl.classList.add('copied');
+
+        this.#copyResetTimer = setTimeout(() => {
+          this.#copyTranslationBtnEl.classList.remove('copied');
+          this.#copyResetTimer = null;
+        }, 1000);
+      } catch (error) {
+        console.error('复制译文失败:', error);
+      }
+    }
   }
 
   hide(callback) {
