@@ -77,9 +77,10 @@ export default class Panel {
     this.#translationEl = shadow.querySelector('.translation');
     this.#failedTextEl = shadow.querySelector('.failed-text-content');
 
-    shadow
-      .querySelector('.close-btn')
-      .addEventListener('click', () => this.hide());
+    shadow.querySelectorAll('.close-btn').forEach((btn) => {
+      btn.addEventListener('click', () => this.handleCloseBtnClick());
+    });
+
     shadow
       .querySelector('.audio-btn')
       .addEventListener('click', () => this.playAudio());
@@ -335,6 +336,10 @@ export default class Panel {
     this.#notFoundTextEl.textContent = DEFAULT_NOT_FOUND_TEXT;
 
     return this;
+  }
+
+  handleCloseBtnClick() {
+    this.hide();
   }
 
   hide(callback) {
