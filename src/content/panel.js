@@ -42,6 +42,7 @@ export default class Panel {
   #shadow = null;
   #sessionId = null;
   #mode = null; // 'dict' or 'translate'
+  #utterance = null;
 
   // dict section
   #wordEl = null;
@@ -66,6 +67,7 @@ export default class Panel {
     this.#shadow = shadow;
     this.#panel = shadow.querySelector('.panel');
     this.#sessionId = 0;
+    this.initUtterance();
 
     // dict section
     this.#wordEl = shadow.querySelector('.word');
@@ -75,7 +77,6 @@ export default class Panel {
     this.#rootListEl = shadow.querySelector('.root-list');
     this.#compositionEl = shadow.querySelector('.composition');
     this.#notFoundTextEl = shadow.querySelector('.not-found-text-content');
-
     // translate section
     this.#sourceTextEl = shadow.querySelector('.source-text');
     this.#translationEl = shadow.querySelector('.translation');
@@ -88,8 +89,16 @@ export default class Panel {
     });
 
     shadow
-      .querySelector('.audio-btn')
-      .addEventListener('click', () => this.playAudio());
+      .querySelector('.dict-audio-btn')
+      .addEventListener('click', () => this.handleDictAudioBtnClick());
+
+    shadow
+      .querySelector('.translate-audio-btn')
+      .addEventListener('click', () => this.handleTranslateAudioBtnClick());
+
+    shadow
+      .querySelector('.translate-pause-btn')
+      .addEventListener('click', () => this.stopAudio());
 
     this.#expandBtnEl.addEventListener('click', () =>
       this.handleExpandBtnClick(),
@@ -124,6 +133,12 @@ export default class Panel {
 
   get host() {
     return this.#host;
+  }
+
+  initUtterance() {
+    this.#utterance = new SpeechSynthesisUtterance();
+    this.#utterance.lang = 'en-US';
+    return this;
   }
 
   setPosition(targetRect) {
@@ -162,12 +177,48 @@ export default class Panel {
     return this;
   }
 
-  playAudio() {
-    const utterance = new SpeechSynthesisUtterance(
-      this.#wordEl.getAttribute(ATTR_PRONUNCIATION),
-    );
-    utterance.lang = 'en-US';
-    speechSynthesis.speak(utterance);
+  handleDictAudioBtnClick() {
+    this.playAudio(this.#wordEl.getAttribute(ATTR_PRONUNCIATION));
+  }
+
+  handleTranslateAudioBtnClick() {
+    this.playAudio(this.#sourceTextEl.textContent);
+  }
+
+  playAudio(text) {
+    if (!text?.trim()) {
+      return this;
+    }
+
+    if (!this.#utterance) {
+      this.initUtterance();
+    }
+
+    this.stopAudio();
+
+    this.#utterance.onend = () => {
+      this.stopAudio();
+    };
+
+    this.#utterance.onerror = () => {
+      this.stopAudio();
+    };
+
+    this.#utterance.text = text;
+    speechSynthesis.speak(this.#utterance);
+    this.#panel.classList.add('playing');
+
+    return this;
+  }
+
+  stopAudio() {
+    if (this.#utterance) {
+      this.#utterance.onend = null;
+      this.#utterance.onerror = null;
+    }
+
+    speechSynthesis.cancel();
+    this.#panel.classList.remove('playing');
 
     return this;
   }
@@ -332,6 +383,9 @@ export default class Panel {
   }
 
   resetPanel() {
+    // both dict and translate mode
+    this.stopAudio();
+
     // dict mode
     this.#panel.classList.remove(
       'loading',
@@ -414,6 +468,7 @@ export default class Panel {
 
   hide(callback) {
     this.#host.style.display = 'none';
+    this.stopAudio();
     this.#sessionId++;
     if (callback) {
       callback(this.#sessionId);

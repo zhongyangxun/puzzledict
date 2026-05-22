@@ -118,7 +118,8 @@
   }
 
   .audio-btn,
-  .expand-btn {
+  .expand-btn,
+  .pause-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -136,7 +137,8 @@
   }
 
   .audio-btn:hover,
-  .expand-btn:hover {
+  .expand-btn:hover,
+  .pause-btn:hover {
     color: var(--primary);
     background-color: color-mix(in oklch, var(--primary) 10%, transparent);
   }
@@ -152,6 +154,18 @@
   .expand-btn.expanded {
     transform: rotate(180deg);
     transform-origin: center;
+  }
+
+  .pause-btn {
+    display: none;
+  }
+
+  .mode-translate.playing .pause-btn {
+    display: inline-flex;
+  }
+
+  .mode-translate.playing .translate-audio-btn {
+    display: none;
   }
 
   .close-btn {
@@ -468,6 +482,37 @@
   }
 </style>
 
+<svg style="display: none">
+  <!-- speaker icon -->
+  <symbol
+    id="icon-speaker"
+    viewBox="0 0 22 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+  </symbol>
+
+  <!-- pause icon -->
+  <symbol
+    id="icon-pause"
+    viewBox="0 0 22 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <line x1="8" y1="5" x2="8" y2="19" />
+    <line x1="14" y1="5" x2="14" y2="19" />
+  </symbol>
+</svg>
+
 <div class="panel loading">
   <div class="dict-section">
     <div class="header">
@@ -478,21 +523,8 @@
         </div>
         <div class="phonetic-container">
           <span class="phonetic"></span>
-          <button class="audio-btn">
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 22 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-              <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-            </svg>
+          <button class="audio-btn dict-audio-btn">
+            <svg width="13" height="13"><use href="#icon-speaker" /></svg>
           </button>
         </div>
       </div>
@@ -556,20 +588,28 @@
       <div class="source-text-container">
         <div class="source-text-content">
           <p class="source-text line-clamp-3"></p>
-          <button class="expand-btn">
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </button>
+          <div class="btn-group">
+            <button class="expand-btn">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <button class="audio-btn translate-audio-btn">
+              <svg width="13" height="13"><use href="#icon-speaker" /></svg>
+            </button>
+            <button class="pause-btn translate-pause-btn">
+              <svg width="13" height="13"><use href="#icon-pause" /></svg>
+            </button>
+          </div>
         </div>
       </div>
       <button class="close-btn">&times;</button>

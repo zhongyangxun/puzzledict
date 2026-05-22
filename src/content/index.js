@@ -94,9 +94,6 @@ document.addEventListener('mouseup', async (e) => {
         ? PANEL_MODE.DICT
         : PANEL_MODE.TRANSLATE;
 
-    console.log('mode', mode);
-    console.log('rect', rect);
-
     panel
       .resetPanel()
       .setMode(mode)
