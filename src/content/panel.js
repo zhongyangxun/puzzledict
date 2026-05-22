@@ -1,4 +1,5 @@
 import panelHtml from '../../content.html';
+import { clearSelection } from './selection-rect';
 
 // POS tags sourced from ECDICT
 const VALID_POS_TAGS = new Set([
@@ -442,6 +443,7 @@ export default class Panel {
   }
 
   handleCloseBtnClick() {
+    clearSelection();
     this.hide();
   }
 

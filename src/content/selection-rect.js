@@ -10,3 +10,7 @@ export const getSelectionClientRect = (selection, mouseEvent) => {
 
   return rect;
 };
+
+export const clearSelection = () => {
+  document.getSelection()?.removeAllRanges();
+};
