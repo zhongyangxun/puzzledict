@@ -1,6 +1,6 @@
 import { QUERY_DICT, TRANSLATE_SENTENCE } from '../lib/message-types';
 import Panel, { PANEL_MODE } from './panel';
-import { getSelectionClientRect } from './selection-rect';
+import { clearSelection, getSelectionClientRect } from './selection-rect';
 
 console.log('content script load');
 
@@ -157,6 +157,7 @@ document.addEventListener('mouseup', async (e) => {
 
 document.addEventListener('mousedown', (e) => {
   if (panel.isShown() && !panel.contains(e.target)) {
+    clearSelection();
     panel.hide().resetPanel();
   }
 });
