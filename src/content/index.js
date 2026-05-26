@@ -1,8 +1,11 @@
 import { QUERY_DICT, TRANSLATE_SENTENCE } from '../lib/message-types';
 import Panel, { PANEL_MODE } from './panel';
+import LogoButton from './logo-button/index.js';
 import { clearSelection, getSelectionClientRect } from './selection-rect';
 
 console.log('content script load');
+
+const logoButton = LogoButton.create();
 
 const panel = Panel.create();
 const FALLBACK_MESSAGE = '请求翻译失败，请稍后重试';
@@ -74,8 +77,100 @@ const requestLookup = async (text, type) => {
   }
 };
 
-document.addEventListener('mouseup', async (e) => {
-  if (panel.contains(e.target)) {
+const handlePanelQuery = async (trimed, mode, sessionId) => {
+  let response = null;
+
+  if (mode === PANEL_MODE.DICT) {
+    response = await requestLookup(trimed, QUERY_DICT);
+  } else {
+    response = await requestLookup(trimed, TRANSLATE_SENTENCE);
+  }
+
+  // 若 sessionId 已变更（新查询或已关闭面板），则丢弃本次结果，避免竞态问题
+  if (!panel.isCurrentSession(sessionId)) {
+    console.log('sessionId mismatch, abort');
+    return;
+  }
+
+  if (mode === PANEL_MODE.DICT) {
+    const { data, message } = response || {
+      data: null,
+      message: FALLBACK_MESSAGE,
+    };
+
+    const {
+      lookupKey = trimed,
+      definition,
+      root,
+      variantInfo,
+      pronunciationText,
+    } = data || {};
+
+    panel.stopLoading().setDictContent({
+      word: lookupKey,
+      definition,
+      root,
+      variantInfo,
+      pronunciationText,
+      message,
+    });
+  }
+
+  if (mode === PANEL_MODE.TRANSLATE) {
+    console.log('translate response', response);
+
+    const { data, message } = response || {
+      data: null,
+      message: FALLBACK_MESSAGE,
+    };
+    const { query = trimed, translation } = data;
+
+    panel.stopLoading().setTranslateContent({ query, translation, message });
+  }
+};
+
+const queryInfo = {
+  rect: null,
+  trimed: null,
+  mode: null,
+};
+
+const resetQueryInfo = () => {
+  Object.keys(queryInfo).forEach((key) => {
+    queryInfo[key] = null;
+  });
+};
+
+const panelShow = () => {
+  const { rect } = queryInfo;
+  if (!rect) return;
+
+  const { trimed, mode } = queryInfo;
+
+  panel
+    .resetPanel()
+    .setMode(mode)
+    .setLoading()
+    .setPosition(rect)
+    .show((id) => {
+      handlePanelQuery(trimed, mode, id);
+    });
+};
+
+logoButton.addEventListener('click', () => {
+  panelShow();
+
+  logoButton.hide();
+});
+
+const logoButtonShow = () => {
+  const { rect } = queryInfo;
+  if (!rect) return;
+  logoButton.setPosition(rect).show();
+};
+
+document.addEventListener('mouseup', (e) => {
+  if (panel.contains(e.target) || logoButton.contains(e.target)) {
     return;
   }
 
@@ -88,76 +183,26 @@ document.addEventListener('mouseup', async (e) => {
 
   if (isSingleWord(trimed) || isPhrase(trimed) || isSentence(trimed)) {
     const rect = getSelectionClientRect(selection, e);
-    let sessionId = null;
     const mode =
       isSingleWord(trimed) || isPhrase(trimed)
         ? PANEL_MODE.DICT
         : PANEL_MODE.TRANSLATE;
 
-    panel
-      .resetPanel()
-      .setMode(mode)
-      .setLoading()
-      .setPosition(rect)
-      .show((id) => {
-        sessionId = id;
-      });
+    queryInfo.trimed = trimed;
+    queryInfo.mode = mode;
+    queryInfo.rect = rect;
 
-    let response = null;
-
-    if (mode === PANEL_MODE.DICT) {
-      response = await requestLookup(trimed, QUERY_DICT);
-    } else {
-      response = await requestLookup(trimed, TRANSLATE_SENTENCE);
-    }
-
-    // 若 sessionId 已变更（新查询或已关闭面板），则丢弃本次结果，避免竞态问题
-    if (!panel.isCurrentSession(sessionId)) {
-      console.log('sessionId mismatch, abort');
-      return;
-    }
-
-    if (mode === PANEL_MODE.DICT) {
-      const { data, message } = response || {
-        data: null,
-        message: FALLBACK_MESSAGE,
-      };
-
-      const {
-        lookupKey = trimed,
-        definition,
-        root,
-        variantInfo,
-        pronunciationText,
-      } = data || {};
-
-      panel.stopLoading().setDictContent({
-        word: lookupKey,
-        definition,
-        root,
-        variantInfo,
-        pronunciationText,
-        message,
-      });
-    }
-
-    if (mode === PANEL_MODE.TRANSLATE) {
-      console.log('translate response', response);
-
-      const { data, message } = response || {
-        data: null,
-        message: FALLBACK_MESSAGE,
-      };
-      const { query = trimed, translation } = data;
-
-      panel.stopLoading().setTranslateContent({ query, translation, message });
-    }
+    logoButtonShow();
   }
 });
 
 document.addEventListener('mousedown', (e) => {
   if (panel.isShown() && !panel.contains(e.target)) {
     clearSelection();
-    panel.hide().resetPanel();
+    panel.hide(() => resetQueryInfo()).resetPanel();
+  }
+  if (logoButton.isShown() && !logoButton.contains(e.target)) {
+    clearSelection();
+    logoButton.hide(() => resetQueryInfo());
   }
 });

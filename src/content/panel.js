@@ -1,4 +1,5 @@
 import panelHtml from '../../content.html';
+import { detectDarkMode, initThemeObserver } from '../lib/theme';
 import { clearSelection } from './selection-rect';
 
 // POS tags sourced from ECDICT
@@ -109,7 +110,7 @@ export default class Panel {
       this.handleCopyTranslationBtnClick(),
     );
 
-    this.initThemeObserver();
+    initThemeObserver(() => this.updateTheme());
 
     this.setMode(PANEL_MODE.DICT);
     this.hide();
@@ -499,58 +500,8 @@ export default class Panel {
     return this.#host === target || this.#host.contains(target);
   }
 
-  detectDarkMode() {
-    const isSystemDark = window.matchMedia(
-      '(prefers-color-scheme: dark)',
-    ).matches;
-    const html = document.documentElement;
-    const body = document.body;
-
-    // 1. 检查 color-scheme
-    const cs = getComputedStyle(html).colorScheme;
-    if (cs.includes('dark') && !cs.includes('light')) return true;
-
-    // 2. 检查常见暗色模式标志
-    const darkIndicators = [
-      html.classList.contains('dark'),
-      html.dataset.theme === 'dark',
-      html.dataset.colorMode === 'dark',
-      body?.classList.contains('dark'),
-      body?.dataset.theme === 'dark',
-    ];
-    if (darkIndicators.some(Boolean)) return true;
-
-    // 3. 系统保底
-    return isSystemDark;
-  }
-
   updateTheme() {
-    const isDark = this.detectDarkMode();
+    const isDark = detectDarkMode();
     this.#host.classList.toggle('dark', isDark);
-  }
-
-  initThemeObserver() {
-    this.updateTheme();
-
-    // 监听系统主题变化
-    window
-      .matchMedia('(prefers-color-scheme: dark)')
-      .addEventListener('change', () => {
-        this.updateTheme();
-      });
-
-    // 监听宿主页面 class/attribute 变化
-    const observer = new MutationObserver(() => this.updateTheme());
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class', 'data-theme', 'data-color-mode'],
-    });
-
-    if (document.body) {
-      observer.observe(document.body, {
-        attributes: true,
-        attributeFilter: ['class', 'data-theme', 'data-color-mode'],
-      });
-    }
   }
 }
