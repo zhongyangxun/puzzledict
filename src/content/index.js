@@ -197,11 +197,20 @@ document.addEventListener('mouseup', (e) => {
 });
 
 document.addEventListener('mousedown', (e) => {
-  if (panel.isShown() && !panel.contains(e.target)) {
+  if (panel.isShown()) {
+    if (panel.contains(e.target)) {
+      e.preventDefault();
+      return;
+    }
     clearSelection();
     panel.hide(() => resetQueryInfo()).resetPanel();
   }
-  if (logoButton.isShown() && !logoButton.contains(e.target)) {
+
+  if (logoButton.isShown()) {
+    if (logoButton.contains(e.target)) {
+      e.preventDefault();
+      return;
+    }
     clearSelection();
     logoButton.hide(() => resetQueryInfo());
   }
