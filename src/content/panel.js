@@ -260,6 +260,9 @@ export default class Panel {
   }
 
   setRootList(roots) {
+    const compact = roots.length > 4;
+    this.#rootListEl.classList.toggle('compact', compact);
+
     this.#rootListEl.innerHTML = roots
       .map(({ root, meaning }) => {
         const isPrefix = root.endsWith('-');

@@ -232,6 +232,10 @@
     gap: 12px;
   }
 
+  .root-list.compact {
+    gap: 6px;
+  }
+
   .root-item {
     display: flex;
     flex-direction: column;
@@ -246,6 +250,11 @@
     font-weight: 600;
     color: var(--foreground);
     letter-spacing: 0.025em;
+  }
+
+  .root-list.compact .root-item .root {
+    padding: 4px 8px;
+    font-size: 12px;
   }
 
   .root-item .prefix {
@@ -275,6 +284,10 @@
     color: var(--muted-foreground);
     text-align: center;
     line-height: 1.625;
+  }
+
+  .root-list.compact .root-item .meaning {
+    font-size: 10px;
   }
 
   .composition {
