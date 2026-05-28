@@ -1,13 +1,17 @@
 import { parseJsonResponse, postJson } from '../background/api-client';
+import {
+  TRANSLATE_FAILED_MESSAGE,
+  TRANSLATE_SUCCESS_MESSAGE,
+} from '../lib/translate-messages.js';
 
 const API_URL = 'http://127.0.0.1:8787/translate';
 
 const getMessage = (status) => {
   switch (status) {
     case 200:
-      return '翻译成功';
+      return TRANSLATE_SUCCESS_MESSAGE;
     default:
-      return '翻译失败';
+      return TRANSLATE_FAILED_MESSAGE;
   }
 };
 

@@ -1,6 +1,7 @@
 import panelHtml from '../../content.html';
 import { detectDarkMode, initThemeObserver } from '../lib/theme';
 import { clearSelection } from './selection-rect';
+import { TRANSLATE_FAILED_MESSAGE } from '../lib/translate-messages.js';
 
 // POS tags sourced from ECDICT
 const VALID_POS_TAGS = new Set([
@@ -26,7 +27,6 @@ const VALID_POS_TAGS = new Set([
 
 const ATTR_PRONUNCIATION = 'data-pronunciation';
 const DEFAULT_NOT_FOUND_TEXT = '未找到该单词';
-const DEFAULT_FAILED_TEXT = '翻译失败，请稍后重试';
 
 export const PANEL_MODE = {
   DICT: 'dict',
@@ -352,9 +352,8 @@ export default class Panel {
   }
 
   setTranslateContent({ query, translation, message }) {
-    if (translation) {
-      this.#panel.classList.remove('translate-failed');
-
+    // 无论翻译成功与否，都渲染查询文本
+    if (query) {
       const sourceTextEl = this.#sourceTextEl;
 
       sourceTextEl.textContent = query;
@@ -364,10 +363,14 @@ export default class Panel {
       } else {
         this.#expandBtnEl.classList.remove('show');
       }
+    }
+
+    if (translation) {
+      this.#panel.classList.remove('translate-failed');
 
       this.#translationEl.textContent = translation;
     } else {
-      this.#failedTextEl.textContent = message || DEFAULT_FAILED_TEXT;
+      this.#failedTextEl.textContent = message || TRANSLATE_FAILED_MESSAGE;
       this.#panel.classList.add('translate-failed');
     }
 
@@ -428,7 +431,7 @@ export default class Panel {
     this.#sourceTextEl.classList.add('line-clamp-3');
 
     this.#translationEl.textContent = '';
-    this.#failedTextEl.textContent = DEFAULT_FAILED_TEXT;
+    this.#failedTextEl.textContent = TRANSLATE_FAILED_MESSAGE;
 
     this.#expandBtnEl.classList.remove('show', 'expanded');
 

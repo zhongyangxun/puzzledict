@@ -1,4 +1,5 @@
 import { QUERY_DICT, TRANSLATE_SENTENCE } from '../lib/message-types';
+import { TRANSLATE_FAILED_MESSAGE } from '../lib/translate-messages.js';
 import Panel, { PANEL_MODE } from './panel';
 import LogoButton from './logo-button/index.js';
 import { clearSelection, getSelectionClientRect } from './selection-rect';
@@ -8,7 +9,6 @@ console.log('content script load');
 const logoButton = LogoButton.create();
 
 const panel = Panel.create();
-const FALLBACK_MESSAGE = '请求翻译失败，请稍后重试';
 
 // 网页排版字符 → ASCII（弯引号、破折号等）
 const normalizeEnglishText = (text) =>
@@ -70,7 +70,7 @@ const requestLookup = async (text, type) => {
     if (!response) {
       return {
         data: null,
-        message: FALLBACK_MESSAGE,
+        message: TRANSLATE_FAILED_MESSAGE,
       };
     }
 
@@ -80,7 +80,7 @@ const requestLookup = async (text, type) => {
 
     return {
       data: null,
-      message: FALLBACK_MESSAGE,
+      message: TRANSLATE_FAILED_MESSAGE,
     };
   }
 };
@@ -103,7 +103,7 @@ const handlePanelQuery = async (trimed, mode, sessionId) => {
   if (mode === PANEL_MODE.DICT) {
     const { data, message } = response || {
       data: null,
-      message: FALLBACK_MESSAGE,
+      message: TRANSLATE_FAILED_MESSAGE,
     };
 
     const {
@@ -129,9 +129,9 @@ const handlePanelQuery = async (trimed, mode, sessionId) => {
 
     const { data, message } = response || {
       data: null,
-      message: FALLBACK_MESSAGE,
+      message: TRANSLATE_FAILED_MESSAGE,
     };
-    const { query = trimed, translation } = data;
+    const { query = trimed, translation } = data || {};
 
     panel.stopLoading().setTranslateContent({ query, translation, message });
   }
