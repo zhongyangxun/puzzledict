@@ -10,7 +10,15 @@ const logoButton = LogoButton.create();
 const panel = Panel.create();
 const FALLBACK_MESSAGE = '请求翻译失败，请稍后重试';
 
-const isMainlyEnglish = (text) => /^[\x20-\x7E]+$/.test(text.trim());
+// 网页排版字符 → ASCII（弯引号、破折号等）
+const normalizeEnglishText = (text) =>
+  text
+    .trim()
+    .replace(/[\u2018\u2019\u201A\u2032]/g, "'")
+    .replace(/[\u201C\u201D\u201E]/g, '"')
+    .replace(/[\u2013\u2014]/g, '-');
+
+const isMainlyEnglish = (text) => /^[\x20-\x7E]+$/.test(text);
 
 const isSingleWord = (text) => {
   const trimmedText = text.trim();
@@ -175,9 +183,9 @@ document.addEventListener('mouseup', (e) => {
   }
 
   const selection = document.getSelection();
-  const trimed = selection.toString().trim();
+  const trimed = normalizeEnglishText(selection.toString());
 
-  if (!isMainlyEnglish(trimed)) {
+  if (!trimed || !isMainlyEnglish(trimed)) {
     return;
   }
 
