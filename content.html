@@ -358,6 +358,18 @@
     display: none;
   }
 
+  .skeleton-line-container {
+    display: none;
+  }
+
+  .skeleton-line {
+    width: 100%;
+  }
+
+  .skeleton-line-w80 {
+    width: 80%;
+  }
+
   .not-found-section,
   .failed-section {
     display: none;
@@ -368,7 +380,8 @@
   .loading .pos-label,
   .loading .def-text,
   .loading .root-item span,
-  .loading .composition {
+  .loading .composition,
+  .skeleton-line {
     background-color: var(--muted);
     border-radius: 6px;
     color: transparent;
@@ -436,6 +449,22 @@
 
   .loading .composition {
     width: 192px;
+  }
+
+  .loading.mode-translate .header {
+    border-bottom: none;
+  }
+
+  .loading .source-text-container,
+  .loading .translation-content {
+    display: none;
+  }
+
+  .loading .skeleton-line-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-grow: 1;
   }
 
   @keyframes shimmer {
@@ -625,6 +654,10 @@
           </div>
         </div>
       </div>
+      <div class="skeleton-line-container">
+        <p class="skeleton-line"></p>
+        <p class="skeleton-line skeleton-line-w80"></p>
+      </div>
       <button class="close-btn">&times;</button>
     </div>
     <div class="content">
@@ -666,6 +699,10 @@
             </span>
             <span class="copied-text">已复制</span>
           </button>
+        </div>
+        <div class="skeleton-line-container">
+          <p class="skeleton-line"></p>
+          <p class="skeleton-line skeleton-line-w80"></p>
         </div>
       </div>
       <div class="failed-section">
