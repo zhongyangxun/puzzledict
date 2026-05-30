@@ -1,4 +1,8 @@
-import { parseJsonResponse, postJson } from '../background/api-client';
+import {
+  parseJsonResponse,
+  postJson,
+  REQUEST_TIMEOUT_MS,
+} from './api-client.js';
 import {
   TRANSLATE_FAILED_MESSAGE,
   TRANSLATE_SUCCESS_MESSAGE,
@@ -15,8 +19,11 @@ const getMessage = (status) => {
   }
 };
 
-export const translateSentence = async (text, clientId) => {
-  const response = await postJson(API_URL, { text }, { clientId });
+export const translateText = async (
+  text,
+  { clientId, timeoutMs = REQUEST_TIMEOUT_MS },
+) => {
+  const response = await postJson(API_URL, { text }, { clientId, timeoutMs });
   const { status, data, message } = await parseJsonResponse(
     response,
     getMessage,
