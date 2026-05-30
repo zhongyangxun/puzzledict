@@ -1,8 +1,10 @@
 import panelHtml from '../../content.html';
 import { detectDarkMode, initThemeObserver } from '../lib/theme';
 import { clearSelection } from './selection-rect';
-import { TRANSLATE_FAILED_MESSAGE } from '../lib/translate-messages.js';
-
+import {
+  TRANSLATE_FAILED_MESSAGE,
+  NOT_FOUND_MESSAGE,
+} from '../lib/translate-messages.js';
 // POS tags sourced from ECDICT
 const VALID_POS_TAGS = new Set([
   'n.', // noun
@@ -26,7 +28,6 @@ const VALID_POS_TAGS = new Set([
 ]);
 
 const ATTR_PRONUNCIATION = 'data-pronunciation';
-const DEFAULT_NOT_FOUND_TEXT = '未找到该单词';
 
 export const PANEL_MODE = {
   DICT: 'dict',
@@ -342,7 +343,7 @@ export default class Panel {
       }
     } else {
       this.#panel.classList.add('not-found');
-      this.#notFoundTextEl.textContent = message || DEFAULT_NOT_FOUND_TEXT;
+      this.#notFoundTextEl.textContent = message || NOT_FOUND_MESSAGE;
     }
 
     // 渲染完内容后，实际高度可能发生变化，需要更新位置
@@ -422,7 +423,7 @@ export default class Panel {
       item.textContent = '';
     });
     this.#compositionEl.textContent = '';
-    this.#notFoundTextEl.textContent = DEFAULT_NOT_FOUND_TEXT;
+    this.#notFoundTextEl.textContent = NOT_FOUND_MESSAGE;
 
     // translate mode
     this.#panel.classList.remove('translate-failed');

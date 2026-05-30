@@ -1,9 +1,13 @@
-import { parseJsonResponse, postJson } from '../background/api-client';
+import { parseJsonResponse, postJson, REQUEST_TIMEOUT_MS } from './api-client';
 import { getCache, setCache } from './cache';
+import { NOT_FOUND_MESSAGE } from '../lib/translate-messages.js';
 
 const API_URL = 'http://127.0.0.1:8789/lookup';
 
-export async function queryDictionary(text, clientId) {
+export async function queryDictionary(
+  text,
+  { clientId, timeoutMs = REQUEST_TIMEOUT_MS },
+) {
   const cache = await getCache(text);
   if (cache) {
     return {
@@ -13,7 +17,11 @@ export async function queryDictionary(text, clientId) {
     };
   }
 
-  const response = await postJson(API_URL, { lookup_key: text }, { clientId });
+  const response = await postJson(
+    API_URL,
+    { lookup_key: text },
+    { clientId, timeoutMs },
+  );
 
   const { status, data, message } = await parseJsonResponse(
     response,
@@ -35,6 +43,6 @@ function getMessage(status) {
       return '请求过于频繁，请稍后再试';
     default:
       // TODO(rate-limit): distinguish 5xx from not-found (avoid misleading "未找到该单词" on server errors).
-      return '未找到该单词';
+      return NOT_FOUND_MESSAGE;
   }
 }

@@ -4,7 +4,7 @@ import { EXCHANGES } from '../lib/exchanges.js';
 import { PRONUNCIATION_FIX_MAP } from '../lib/pronunciation.js';
 import { queryDictionary } from '../service/dictionary-api.js';
 import { initLogger } from './remote-log-client.js';
-import { translateSentence } from '../service/translate.js';
+import { translateText } from '../service/translate.js';
 
 // 仅在开发模式下激活远程日志（initLogger 内部会判断 IS_DEV）
 if (IS_DEV) {
@@ -131,6 +131,7 @@ async function handleQueryDictionary(text) {
   // 1. 本地词库直接命中
   // 2. 通过变体信息查原型词（免网络请求）
   // 3. 请求远程 API
+  // 4. 有道翻译兜底
   if (definition) {
     // 清洗`translation` 中可能包含的变体信息（变体信息应只由 `variantInfo` 提供）
     const { translation } = definition;
@@ -163,7 +164,10 @@ async function handleQueryDictionary(text) {
     console.log('请求 API 查词', text);
     const clientId = await getClientId();
     console.log('clientId', clientId);
-    const { status, message, data } = await queryDictionary(text, clientId);
+    const { status, message, data } = await queryDictionary(text, {
+      clientId,
+      timeoutMs: 2000,
+    });
     console.log('response', {
       status,
       message,
@@ -182,6 +186,29 @@ async function handleQueryDictionary(text) {
       }
     } else {
       errMessage = message;
+    }
+  }
+
+  // 兜底：有道翻译
+  if (!definition) {
+    try {
+      const clientId = await getClientId();
+      const { status, data } = await translateText(text, { clientId });
+      const translation = data?.translation?.trim();
+      const isEchoed = translation?.toLowerCase() === text.trim().toLowerCase();
+
+      if (status === 200 && translation && !isEchoed) {
+        return {
+          isSuccess: true,
+          fallbackTranslation: true,
+          data: {
+            query: text,
+            translation,
+          },
+        };
+      }
+    } catch (err) {
+      console.error('有道翻译兜底失败', err);
     }
   }
 
@@ -210,7 +237,8 @@ async function handleQueryDictionary(text) {
 }
 
 async function handleTranslateSentence(text) {
-  const { status, message, data } = await translateSentence(text);
+  const clientId = await getClientId();
+  const { status, message, data } = await translateText(text, { clientId });
   return {
     isSuccess: status === 200,
     message,
