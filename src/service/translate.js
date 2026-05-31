@@ -4,6 +4,7 @@ import {
   REQUEST_TIMEOUT_MS,
 } from './api-client.js';
 import {
+  NOT_FOUND_MESSAGE,
   TRANSLATE_FAILED_MESSAGE,
   TRANSLATE_SUCCESS_MESSAGE,
 } from '../lib/translate-messages.js';
@@ -14,6 +15,8 @@ const getMessage = (status) => {
   switch (status) {
     case 200:
       return TRANSLATE_SUCCESS_MESSAGE;
+    case 422:
+      return NOT_FOUND_MESSAGE;
     default:
       return TRANSLATE_FAILED_MESSAGE;
   }
