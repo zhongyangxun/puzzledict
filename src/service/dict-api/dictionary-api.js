@@ -1,6 +1,10 @@
-import { parseJsonResponse, postJson, REQUEST_TIMEOUT_MS } from './api-client';
-import { getCache, setCache } from './cache';
-import { NOT_FOUND_MESSAGE } from '../lib/translate-messages.js';
+import {
+  parseJsonResponse,
+  postJson,
+  REQUEST_TIMEOUT_MS,
+} from '../api-client.js';
+import { getDictCache, setDictCache } from './cache';
+import { NOT_FOUND_MESSAGE } from '../../lib/translate-messages.js';
 
 const API_URL = 'http://127.0.0.1:8789/lookup';
 
@@ -8,7 +12,7 @@ export async function queryDictionary(
   text,
   { clientId, timeoutMs = REQUEST_TIMEOUT_MS },
 ) {
-  const cache = await getCache(text);
+  const cache = await getDictCache(text);
   if (cache) {
     return {
       status: 200,
@@ -29,7 +33,7 @@ export async function queryDictionary(
   );
 
   if (status === 200) {
-    await setCache(text, data);
+    await setDictCache(text, data);
   }
 
   return { status, message, data };
