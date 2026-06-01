@@ -3,7 +3,7 @@ import {
   DICT_FAILED_MESSAGE,
   TRANSLATE_FAILED_MESSAGE,
 } from '../lib/result-messages.js';
-import Panel, { PANEL_MODE } from './panel';
+import Panel, { PANEL_MODE } from './panel/index.js';
 import LogoButton from './logo-button/index.js';
 import { clearSelection, getSelectionClientRect } from './selection-rect';
 

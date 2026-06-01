@@ -25,8 +25,7 @@
       "resources": [
         "data/high_freq_words.json",
         "data/word_roots.json",
-        "data/reverse_index.json",
-        "content.html"
+        "data/reverse_index.json"
       ],
       "matches": ["<all_urls>"]
     }
