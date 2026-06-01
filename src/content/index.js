@@ -225,20 +225,11 @@ document.addEventListener('mouseup', (e) => {
 });
 
 document.addEventListener('mousedown', (e) => {
-  if (panel.isShown()) {
-    if (panel.contains(e.target)) {
-      e.preventDefault();
-      return;
-    }
+  if (panel.isShown() && !panel.contains(e.target)) {
     clearSelection();
     panel.hide(() => resetQueryInfo()).resetPanel();
   }
-
-  if (logoButton.isShown()) {
-    if (logoButton.contains(e.target)) {
-      e.preventDefault();
-      return;
-    }
+  if (logoButton.isShown() && !logoButton.contains(e.target)) {
     clearSelection();
     logoButton.hide(() => resetQueryInfo());
   }
