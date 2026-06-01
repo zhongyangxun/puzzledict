@@ -1,5 +1,8 @@
 import { QUERY_DICT, TRANSLATE_SENTENCE } from '../lib/message-types';
-import { TRANSLATE_FAILED_MESSAGE } from '../lib/translate-messages.js';
+import {
+  DICT_FAILED_MESSAGE,
+  TRANSLATE_FAILED_MESSAGE,
+} from '../lib/result-messages.js';
 import Panel, { PANEL_MODE } from './panel';
 import LogoButton from './logo-button/index.js';
 import { clearSelection, getSelectionClientRect } from './selection-rect';
@@ -65,6 +68,9 @@ const requestLookup = async (text, type) => {
     return { data: null, message: '扩展已更新，请刷新页面后重试' };
   }
 
+  const errorMessage =
+    type === QUERY_DICT ? DICT_FAILED_MESSAGE : TRANSLATE_FAILED_MESSAGE;
+
   try {
     const response = await chrome.runtime.sendMessage({
       type,
@@ -76,7 +82,7 @@ const requestLookup = async (text, type) => {
     if (!response) {
       return {
         data: null,
-        message: TRANSLATE_FAILED_MESSAGE,
+        message: errorMessage,
       };
     }
 
@@ -86,7 +92,7 @@ const requestLookup = async (text, type) => {
 
     return {
       data: null,
-      message: TRANSLATE_FAILED_MESSAGE,
+      message: errorMessage,
     };
   }
 };
@@ -109,7 +115,7 @@ const handlePanelQuery = async (trimed, mode, sessionId) => {
   if (mode === PANEL_MODE.DICT) {
     const { data, message } = response || {
       data: null,
-      message: TRANSLATE_FAILED_MESSAGE,
+      message: DICT_FAILED_MESSAGE,
     };
 
     // 有道兜底，切换为翻译面板展示

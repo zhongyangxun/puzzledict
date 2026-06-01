@@ -4,7 +4,12 @@ import {
   REQUEST_TIMEOUT_MS,
 } from '../api-client.js';
 import { getDictCache, setDictCache } from './cache';
-import { NOT_FOUND_MESSAGE } from '../../lib/translate-messages.js';
+import {
+  DICT_FAILED_MESSAGE,
+  DICT_SUCCESS_MESSAGE,
+  NOT_FOUND_MESSAGE,
+  RATE_LIMIT_MESSAGE,
+} from '../../lib/result-messages.js';
 
 const API_URL = 'http://127.0.0.1:8789/lookup';
 
@@ -16,7 +21,7 @@ export async function queryDictionary(
   if (cache) {
     return {
       status: 200,
-      message: '查询成功',
+      message: DICT_SUCCESS_MESSAGE,
       data: cache,
     };
   }
@@ -42,11 +47,12 @@ export async function queryDictionary(
 function getMessage(status) {
   switch (status) {
     case 200:
-      return '查询成功';
-    case 429:
-      return '请求过于频繁，请稍后再试';
-    default:
-      // TODO(rate-limit): distinguish 5xx from not-found (avoid misleading "未找到该单词" on server errors).
+      return DICT_SUCCESS_MESSAGE;
+    case 404:
       return NOT_FOUND_MESSAGE;
+    case 429:
+      return RATE_LIMIT_MESSAGE;
+    default:
+      return DICT_FAILED_MESSAGE;
   }
 }

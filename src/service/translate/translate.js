@@ -5,9 +5,10 @@ import {
 } from '../api-client.js';
 import {
   NOT_FOUND_MESSAGE,
+  RATE_LIMIT_MESSAGE,
   TRANSLATE_FAILED_MESSAGE,
   TRANSLATE_SUCCESS_MESSAGE,
-} from '../../lib/translate-messages.js';
+} from '../../lib/result-messages.js';
 import { getTranslateCache, setTranslateCache } from './cache';
 
 const API_URL = 'http://127.0.0.1:8787/translate';
@@ -18,6 +19,8 @@ const getMessage = (status) => {
       return TRANSLATE_SUCCESS_MESSAGE;
     case 422:
       return NOT_FOUND_MESSAGE;
+    case 429:
+      return RATE_LIMIT_MESSAGE;
     default:
       return TRANSLATE_FAILED_MESSAGE;
   }
