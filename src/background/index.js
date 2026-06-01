@@ -16,12 +16,17 @@ let dict = null;
 let wordRoots = null;
 let reverseIndex = null;
 let clientId = null;
-// TODO(rate-limit): dedupe concurrent getClientId() calls to avoid racing multiple UUID writes
-// (can cause the same user to be treated as multiple clients briefly, affecting rate limiting metrics).
+let clientIdPromise = null;
 
 async function getClientId() {
   if (clientId) return clientId;
+  if (!clientIdPromise) {
+    clientIdPromise = initClientId();
+  }
+  return clientIdPromise;
+}
 
+async function initClientId() {
   try {
     const { clientId: storedClientId } = await chrome.storage.local.get({
       clientId: null,
@@ -35,9 +40,13 @@ async function getClientId() {
   }
 
   clientId = crypto.randomUUID();
-  // TODO(rate-limit): wrap storage.set in try/catch and gracefully fall back to in-memory clientId
-  // so lookup doesn't fail/hang if storage is temporarily unavailable.
-  await chrome.storage.local.set({ clientId });
+
+  try {
+    await chrome.storage.local.set({ clientId });
+  } catch (err) {
+    console.log('setClientId error', err);
+  }
+
   return clientId;
 }
 
