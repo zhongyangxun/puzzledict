@@ -4,7 +4,7 @@ import { clearSelection } from './selection-rect';
 import {
   TRANSLATE_FAILED_MESSAGE,
   NOT_FOUND_MESSAGE,
-} from '../lib/translate-messages.js';
+} from '../lib/result-messages.js';
 // POS tags sourced from ECDICT
 const VALID_POS_TAGS = new Set([
   'n.', // noun
