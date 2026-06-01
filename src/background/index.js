@@ -2,9 +2,9 @@ import { IS_DEV } from '../lib/build-env.js';
 import { QUERY_DICT, TRANSLATE_SENTENCE } from '../lib/message-types.js';
 import { EXCHANGES } from '../lib/exchanges.js';
 import { PRONUNCIATION_FIX_MAP } from '../lib/pronunciation.js';
-import { queryDictionary } from '../service/dictionary-api.js';
+import { queryDictionary } from '../service/dict-api/dictionary-api.js';
 import { initLogger } from './remote-log-client.js';
-import { translateText } from '../service/translate.js';
+import { translateText } from '../service/translate/translate.js';
 
 // 仅在开发模式下激活远程日志（initLogger 内部会判断 IS_DEV）
 if (IS_DEV) {
