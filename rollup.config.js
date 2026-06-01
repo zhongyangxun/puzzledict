@@ -1,6 +1,17 @@
 import copy from 'rollup-plugin-copy';
 import replace from '@rollup/plugin-replace';
+import terser from '@rollup/plugin-terser';
 import { rmSync } from 'fs';
+
+const isProd = process.env.NODE_ENV === 'production';
+
+const terserPlugin = isProd
+  ? terser({
+      compress: {
+        drop_console: ['log', 'info'],
+      },
+    })
+  : null;
 
 function htmlPlugin() {
   return {
@@ -34,7 +45,7 @@ export default [
       file: 'dist/content.js',
       format: 'iife',
     },
-    plugins: [htmlPlugin(), cleanPlugin('dist')],
+    plugins: [htmlPlugin(), cleanPlugin('dist'), terserPlugin],
   },
   {
     input: 'src/background/index.js',
@@ -71,6 +82,7 @@ export default [
         // 防止变量被替换
         preventAssignment: true,
       }),
+      terserPlugin,
     ],
   },
 ];

@@ -21,8 +21,7 @@ export default [
     },
     rules: {
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-      // 允许使用 console
-      // TODO:  打包时删除 console.log
+      // 允许使用 console, 生产环境打包时将适当删除 console
       'no-console': 'off',
       'no-undef': 'error',
     },

@@ -35,6 +35,7 @@
     "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^20.5.3",
     "@rollup/plugin-replace": "^6.0.3",
+    "@rollup/plugin-terser": "^1.0.0",
     "csv-parse": "^6.2.1",
     "eslint": "^10.2.1",
     "eslint-config-prettier": "^10.1.8",
