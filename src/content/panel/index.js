@@ -1,10 +1,10 @@
-import panelHtml from '../../content.html';
-import { detectDarkMode, initThemeObserver } from '../lib/theme';
-import { clearSelection } from './selection-rect';
+import panelHtml from './index.html';
+import { detectDarkMode, initThemeObserver } from '../../lib/theme.js';
+import { clearSelection } from '../selection-rect.js';
 import {
   TRANSLATE_FAILED_MESSAGE,
   NOT_FOUND_MESSAGE,
-} from '../lib/result-messages.js';
+} from '../../lib/result-messages.js';
 // POS tags sourced from ECDICT
 const VALID_POS_TAGS = new Set([
   'n.', // noun
