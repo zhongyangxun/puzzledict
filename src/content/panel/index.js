@@ -177,6 +177,10 @@ export default class Panel {
 
     this.#panel.style.left = `${x}px`;
     this.#panel.style.top = `${y}px`;
+
+    const above = y < this.#targetRect.bottom + 8;
+    this.#panel.style.setProperty('--enter-y', above ? '4px' : '-4px');
+
     return this;
   }
 
@@ -477,6 +481,7 @@ export default class Panel {
   }
 
   hide(callback) {
+    this.#host.classList.remove('is-open');
     this.#host.style.display = 'none';
     this.stopAudio();
     this.#sessionId++;
@@ -488,6 +493,14 @@ export default class Panel {
 
   show(callback) {
     this.#host.style.display = 'block';
+    requestAnimationFrame(() => {
+      // 确保面板已经显示
+      // 假如 `show` 之后在此处之前快速 `hide`, 不应添加 `is-open` 类
+      if (this.isShown()) {
+        this.#host.classList.add('is-open');
+      }
+    });
+
     this.#sessionId++;
     if (callback) {
       callback(this.#sessionId);

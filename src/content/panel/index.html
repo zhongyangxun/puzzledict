@@ -63,7 +63,27 @@
     border: 1px solid var(--border);
     overflow: hidden;
     padding: 16px;
+    opacity: 0;
+    /* 默认值为 0，即如果没有设置 `--enter-y`(需要 JavaScript 设置)，则不进行 `translateY` 动画 */
+    transform: translateY(var(--enter-y, 0));
+    transition:
+      opacity 0.17s ease-out,
+      transform 0.17s ease-out;
   }
+
+  :host(.is-open) .panel {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .panel,
+    :host(.is-open) .panel {
+      transition: none;
+      transform: none;
+    }
+  }
+
   .panel.mode-dict .dict-section {
     display: block;
   }
