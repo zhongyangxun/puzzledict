@@ -10,8 +10,11 @@ import {
   NOT_FOUND_MESSAGE,
   RATE_LIMIT_MESSAGE,
 } from '../../lib/result-messages.js';
+import { IS_DEV } from '../../lib/build-env.js';
 
-const API_URL = 'http://127.0.0.1:8789/lookup';
+const API_URL = IS_DEV
+  ? 'http://127.0.0.1:8789/lookup'
+  : 'https://dict-api.zhongyangxun.workers.dev/lookup';
 
 export async function queryDictionary(
   text,

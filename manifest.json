@@ -3,7 +3,10 @@
   "name": "select-to-translate",
   "version": "1.0",
   "permissions": ["storage"],
-
+  "host_permissions": [
+    "https://dict-api.zhongyangxun.workers.dev/*",
+    "https://translate-gateway.zhongyangxun.workers.dev/*"
+  ],
   "action": {
     "default_popup": "popup.html"
   },
