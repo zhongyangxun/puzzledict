@@ -2,6 +2,9 @@ import copy from 'rollup-plugin-copy';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import { rmSync } from 'fs';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -79,6 +82,9 @@ export default [
       }),
       replace({
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+        'process.env.REQUEST_SIGNATURE_SECRET': JSON.stringify(
+          process.env.REQUEST_SIGNATURE_SECRET,
+        ),
         // 防止变量被替换
         preventAssignment: true,
       }),

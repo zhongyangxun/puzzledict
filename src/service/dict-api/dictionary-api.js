@@ -11,10 +11,9 @@ import {
   RATE_LIMIT_MESSAGE,
 } from '../../lib/result-messages.js';
 import { IS_DEV } from '../../lib/build-env.js';
+import { DICT_DEV_URL, DICT_PROD_URL } from '../../lib/api.js';
 
-const API_URL = IS_DEV
-  ? 'http://127.0.0.1:8789/lookup'
-  : 'https://dict-api.zhongyangxun.workers.dev/lookup';
+const API_URL = IS_DEV ? DICT_DEV_URL : DICT_PROD_URL;
 
 export async function queryDictionary(
   text,

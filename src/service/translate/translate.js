@@ -11,10 +11,9 @@ import {
 } from '../../lib/result-messages.js';
 import { getTranslateCache, setTranslateCache } from './cache';
 import { IS_DEV } from '../../lib/build-env.js';
+import { TRANSLATE_DEV_URL, TRANSLATE_PROD_URL } from '../../lib/api.js';
 
-const API_URL = IS_DEV
-  ? 'http://127.0.0.1:8787/translate'
-  : 'https://translate-gateway.zhongyangxun.workers.dev/translate';
+const API_URL = IS_DEV ? TRANSLATE_DEV_URL : TRANSLATE_PROD_URL;
 
 const getMessage = (status) => {
   switch (status) {
