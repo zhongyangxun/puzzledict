@@ -102,15 +102,15 @@ export const postJson = async (
 /**
  * @description 返回的 `message` 字段不应包含任何代码逻辑报错信息，因为这里的错误信息是展示给用户看的
  * @param {Response} response
- * @param {(status: number) => string} getMessage
- * @returns {Promise<{ status: number, message: string, data: any }>}
+ * @param {(status: number, data: unknown) => string} getMessage
+ * @returns {Promise<{ status: number, message: string, data: unknown }>}
  */
 export async function parseJsonResponse(response, getMessage) {
   const { status } = response;
   if (status !== 200) {
     return {
       status,
-      message: getMessage(status),
+      message: getMessage(status, await response.json()),
       data: null,
     };
   }

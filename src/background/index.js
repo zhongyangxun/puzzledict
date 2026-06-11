@@ -202,7 +202,11 @@ async function handleQueryDictionary(text) {
   if (!definition) {
     try {
       const clientId = await getClientId();
-      const { status, data } = await translateText(text, { clientId });
+      const {
+        status,
+        data,
+        message: translateMessage,
+      } = await translateText(text, { clientId });
       const translation = data?.translation?.trim();
       const isEchoed = translation?.toLowerCase() === text.trim().toLowerCase();
 
@@ -215,6 +219,10 @@ async function handleQueryDictionary(text) {
             translation,
           },
         };
+      }
+
+      if (status !== 200 && translateMessage) {
+        errMessage = translateMessage;
       }
     } catch (err) {
       console.error('有道翻译兜底失败', err);
