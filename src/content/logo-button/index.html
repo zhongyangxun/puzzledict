@@ -24,7 +24,7 @@
     justify-content: center;
     background-color: var(--primary);
     border: none;
-    border-radius: 50%;
+    border-radius: 8px;
     box-shadow: 0 4px 14px var(--shadow);
     color: var(--on-primary);
     overflow: hidden;
@@ -38,15 +38,33 @@
     box-shadow: 0 6px 18px var(--shadow-hover);
   }
 
-  .logo-button svg {
+  .logo-button:hover .logo-button-icon {
+    transform: rotate(6deg);
+  }
+
+  .logo-button-icon {
     display: block;
     width: 18px;
     height: 18px;
     flex-shrink: 0;
+    transition: transform 0.15s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .logo-button,
+    .logo-button-icon {
+      transition: none;
+    }
+    .logo-button:hover {
+      transform: none;
+    }
+    .logo-button:hover .logo-button-icon {
+      transform: none;
+    }
   }
 </style>
 <button class="logo-button" aria-label="翻译选中的英文文本">
-  <svg viewBox="0 0 515 561" aria-hidden="true">
+  <svg class="logo-button-icon" viewBox="0 0 515 561" aria-hidden="true">
     <g transform="translate(0 561) scale(0.1 -0.1)" fill="currentColor">
       <path
         d="M2385 5457 c-115 -47 -165 -78 -226 -145 -64 -69 -134 -203 -150 -287 -16 -87 -6 -217 23 -296 14 -37 50 -104 80 -150 77 -116 88 -141 88 -194 0 -59 -23 -109 -64 -138 -31 -22 -32 -22 -576 -27 l-545 -5 -65 -29 c-152 -69 -232 -146 -287 -276 l-28 -65 -3 -1539 c-1 -1014 1 -1559 8 -1595 26 -141 125 -268 264 -337 l80 -39 1555 -3 c1153 -2 1570 0 1611 8 156 33 288 156 347 320 22 65 23 68 23 588 0 573 2 553 -60 605 -60 51 -150 43 -218 -17 -95 -86 -232 -142 -372 -153 -59 -4 -94 -1 -160 16 -128 32 -184 64 -276 155 -115 115 -170 230 -181 383 -8 105 8 186 58 292 70 151 233 284 394 322 77 18 211 15 279 -5 83 -25 165 -68 231 -121 65 -53 91 -65 147 -65 53 0 111 33 137 80 21 37 21 47 21 557 0 556 -1 566 -52 668 -29 55 -122 150 -182 184 -115 65 -108 65 -698 71 -524 5 -537 5 -565 26 -98 73 -98 188 0 316 115 150 152 326 107 502 -40 157 -140 287 -275 358 -104 54 -163 68 -284 68 -96 0 -113 -3 -186 -33z"
