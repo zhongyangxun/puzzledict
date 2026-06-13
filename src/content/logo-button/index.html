@@ -25,21 +25,16 @@
     background-color: var(--primary);
     border: none;
     border-radius: 8px;
-    box-shadow: 0 4px 14px var(--shadow);
+    box-shadow: 0 2px 8px var(--shadow);
     color: var(--on-primary);
-    overflow: hidden;
     transition:
-      transform 0.15s ease,
-      box-shadow 0.15s ease;
+      box-shadow 0.2s ease,
+      transform 0.2s ease;
   }
 
   .logo-button:hover {
-    transform: scale(1.08);
-    box-shadow: 0 6px 18px var(--shadow-hover);
-  }
-
-  .logo-button:hover .logo-button-icon {
-    transform: rotate(6deg);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px var(--shadow-hover);
   }
 
   .logo-button-icon {
@@ -47,18 +42,13 @@
     width: 18px;
     height: 18px;
     flex-shrink: 0;
-    transition: transform 0.15s ease;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .logo-button,
-    .logo-button-icon {
+    .logo-button {
       transition: none;
     }
     .logo-button:hover {
-      transform: none;
-    }
-    .logo-button:hover .logo-button-icon {
       transform: none;
     }
   }
