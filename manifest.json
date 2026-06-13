@@ -4,8 +4,8 @@
   "version": "1.0",
   "permissions": ["storage"],
   "host_permissions": [
-    "https://dict-api.zhongyangxun.workers.dev/*",
-    "https://translate-gateway.zhongyangxun.workers.dev/*"
+    "https://dict.joeyzcode.com/*",
+    "https://translate.joeyzcode.com/*"
   ],
   "action": {
     "default_popup": "popup.html"
