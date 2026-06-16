@@ -1,16 +1,20 @@
 <style>
   :host {
     --primary: oklch(0.52 0.14 195);
-    --on-primary: oklch(1 0 0);
-    --shadow: oklch(0.52 0.14 195 / 35%);
-    --shadow-hover: oklch(0.52 0.14 195 / 50%);
+    --surface: oklch(1 0 0);
+    --ring: oklch(0.88 0.008 240);
+    --shadow: oklch(0 0 0 / 15%);
+    --shadow-hover: oklch(0 0 0 / 22%);
+    --focus-ring: oklch(0.52 0.14 195);
   }
 
   :host(.dark) {
-    --primary: oklch(0.62 0.14 195);
-    --on-primary: oklch(0.98 0.005 240);
-    --shadow: oklch(0.62 0.14 195 / 40%);
-    --shadow-hover: oklch(0.62 0.14 195 / 55%);
+    --primary: oklch(0.72 0.14 195);
+    --surface: oklch(0.28 0.012 240);
+    --ring: oklch(1 0 0 / 14%);
+    --shadow: oklch(0 0 0 / 15%);
+    --shadow-hover: oklch(0 0 0 / 22%);
+    --focus-ring: oklch(0.72 0.14 195);
   }
 
   .logo-button {
@@ -22,11 +26,11 @@
     z-index: 2147483647;
     align-items: center;
     justify-content: center;
-    background-color: var(--primary);
-    border: none;
+    background-color: var(--surface);
+    border: 1px solid var(--ring);
     border-radius: 8px;
     box-shadow: 0 2px 8px var(--shadow);
-    color: var(--on-primary);
+    color: var(--primary);
     transition:
       box-shadow 0.2s ease,
       transform 0.2s ease;
@@ -43,7 +47,7 @@
   }
 
   .logo-button:focus-visible {
-    outline: 2px solid var(--on-primary);
+    outline: 2px solid var(--focus-ring);
     outline-offset: 2px;
   }
 
