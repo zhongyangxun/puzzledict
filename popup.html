@@ -1,11 +1,283 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Select to translate</title>
+    <title>Puzzle Dict</title>
+    <style>
+      :root {
+        --card: oklch(1 0 0);
+        --foreground: oklch(0.18 0.01 240);
+        --muted-foreground: oklch(0.52 0.01 240);
+        --muted: oklch(0.94 0.006 240);
+        --border: oklch(0.88 0.008 240);
+        --primary: oklch(0.52 0.14 195);
+
+        --chip-prefix: oklch(0.93 0.06 258);
+        --chip-prefix-fg: oklch(0.38 0.12 258);
+        --chip-root: oklch(0.93 0.08 195);
+        --chip-root-fg: oklch(0.32 0.12 195);
+        --chip-suffix: oklch(0.93 0.07 80);
+        --chip-suffix-fg: oklch(0.42 0.1 80);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --card: oklch(0.18 0.008 240);
+          --foreground: oklch(0.94 0.006 240);
+          --muted-foreground: oklch(0.58 0.01 240);
+          --muted: oklch(0.24 0.01 240);
+          --border: oklch(0.28 0.01 240);
+          --primary: oklch(0.62 0.14 195);
+
+          --chip-prefix: oklch(0.26 0.08 258);
+          --chip-prefix-fg: oklch(0.74 0.14 258);
+          --chip-root: oklch(0.24 0.08 195);
+          --chip-root-fg: oklch(0.72 0.14 195);
+          --chip-suffix: oklch(0.28 0.07 80);
+          --chip-suffix-fg: oklch(0.78 0.12 80);
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        color-scheme: light dark;
+      }
+
+      body {
+        position: relative;
+        width: 340px;
+        padding: 16px;
+        background: var(--card);
+        color: var(--foreground);
+        font-family:
+          'Inter',
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+
+      .masthead {
+        margin-top: 8px;
+      }
+
+      .masthead .brand {
+        font-size: 18px;
+        line-height: 24px;
+        font-weight: 600;
+        color: var(--primary);
+        letter-spacing: -0.01em;
+      }
+
+      .masthead .tagline {
+        max-width: 28em;
+        font-size: 11px;
+        line-height: 16px;
+        font-weight: 400;
+        color: var(--muted-foreground);
+        margin-top: 4px;
+      }
+
+      .hero {
+        margin-top: 10px;
+        background-color: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px;
+      }
+
+      .preview-label {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 4px;
+        font-size: 10px;
+        line-height: 1;
+        font-weight: 500;
+        color: var(--muted-foreground);
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        letter-spacing: 0.04em;
+      }
+
+      .preview-word {
+        margin-top: 4px;
+        font-size: 17px;
+        line-height: 24px;
+        font-weight: 600;
+        color: var(--foreground);
+        letter-spacing: -0.01em;
+      }
+
+      .preview-def {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        margin-top: 2px;
+      }
+
+      .preview-def .pos-label {
+        font-size: 11px;
+        line-height: 16px;
+        font-weight: 600;
+        color: var(--primary);
+        flex-shrink: 0;
+      }
+
+      .preview-def .def-text {
+        font-size: 13px;
+        line-height: 1.5;
+        font-weight: 400;
+        color: var(--foreground);
+      }
+
+      .root-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 10px;
+        margin-top: 10px;
+        border-top: 1px solid var(--border);
+      }
+
+      .root-list {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .root-item {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        align-items: center;
+      }
+
+      .root-item .root {
+        padding: 4px 8px;
+        border-radius: 5px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--foreground);
+        letter-spacing: 0.025em;
+      }
+
+      .root-item .prefix {
+        background-color: var(--chip-prefix);
+        color: var(--chip-prefix-fg);
+      }
+
+      .root-item .root-word {
+        background: var(--chip-root);
+        color: var(--chip-root-fg);
+      }
+
+      .root-item .suffix {
+        background: var(--chip-suffix);
+        color: var(--chip-suffix-fg);
+      }
+
+      .root-item .note {
+        font-size: 10px;
+        font-weight: 500;
+        color: var(--muted-foreground);
+        letter-spacing: 0.04em;
+      }
+
+      .root-item .meaning {
+        font-size: 11px;
+        font-weight: 400;
+        color: var(--muted-foreground);
+        text-align: center;
+        line-height: 1.5;
+      }
+
+      .composition {
+        margin-top: 10px;
+        font-size: 11px;
+        line-height: 1.5;
+        font-weight: 400;
+        color: var(--muted-foreground);
+        text-align: center;
+      }
+
+      .hero-footnote {
+        margin-top: 10px;
+        padding-top: 10px;
+        font-size: 10px;
+        line-height: 14px;
+        color: var(--muted-foreground);
+        text-align: center;
+        opacity: 0.85;
+      }
+
+      .footer {
+        margin-top: 8px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .footer .version {
+        font-size: 9px;
+        line-height: 12px;
+        font-weight: 400;
+        color: var(--muted-foreground);
+        opacity: 0.55;
+        letter-spacing: 0.04em;
+        align-self: flex-end;
+      }
+    </style>
   </head>
   <body>
-    <div>select to translate</div>
+    <section class="masthead">
+      <h1 class="brand">Puzzle Dict</h1>
+      <p class="tagline">在网页选中英文，点击弹出图标，即可翻译</p>
+    </section>
+
+    <section class="hero" aria-label="查词效果预览">
+      <p class="preview-label">效果预览</p>
+      <p class="preview-word">interesting</p>
+      <div class="preview-def">
+        <span class="pos-label">a.</span>
+        <span class="def-text">有趣的</span>
+      </div>
+
+      <div class="root-section">
+        <div class="root-list">
+          <div class="root-item">
+            <span class="root prefix">inter-</span>
+            <span class="note">前缀</span>
+            <span class="meaning">在…之间</span>
+          </div>
+          <div class="root-item">
+            <span class="root root-word">est</span>
+            <span class="note">词根</span>
+            <span class="meaning">存在</span>
+          </div>
+          <div class="root-item">
+            <span class="root suffix">-ing</span>
+            <span class="note">后缀</span>
+            <span class="meaning">形容词后缀</span>
+          </div>
+        </div>
+        <p class="composition">
+          inter-（在…之间）+ est（存在，源自拉丁语 esse）→ 身处其中 → 引起兴趣的
+        </p>
+      </div>
+
+      <p class="hero-footnote">部分单词支持词根拆解</p>
+    </section>
+
+    <footer class="footer">
+      <span class="version">v1.0</span>
+    </footer>
   </body>
 </html>

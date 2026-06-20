@@ -41,6 +41,18 @@ function cleanPlugin(dir) {
   };
 }
 
+function watchFilesPlugin(files) {
+  return {
+    name: 'watch-files',
+    buildStart() {
+      for (const file of files) {
+        this.addWatchFile(file);
+        console.log(`watch-files: ${file} added`);
+      }
+    },
+  };
+}
+
 export default [
   {
     input: 'src/content/index.js',
@@ -89,6 +101,7 @@ export default [
         preventAssignment: true,
       }),
       terserPlugin,
+      watchFilesPlugin(['popup.html']),
     ],
   },
 ];
