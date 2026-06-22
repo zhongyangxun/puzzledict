@@ -99,6 +99,23 @@ export const postJson = async (
   }
 };
 
+const isResultEnvelope = (value) =>
+  value != null &&
+  typeof value === 'object' &&
+  typeof value.status === 'number' &&
+  typeof value.message === 'string' &&
+  'data' in value;
+
+const readJsonBody = async (response) => {
+  try {
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
+  } catch (error) {
+    console.error('读取 JSON 响应体失败:', error);
+    return null;
+  }
+};
+
 /**
  * @description 返回的 `message` 字段不应包含任何代码逻辑报错信息，因为这里的错误信息是展示给用户看的
  * @param {Response} response
@@ -106,18 +123,32 @@ export const postJson = async (
  * @returns {Promise<{ status: number, message: string, data: unknown }>}
  */
 export async function parseJsonResponse(response, getMessage) {
-  const { status } = response;
-  if (status !== 200) {
+  // `postJson` 已返回结构化错误（超时、网络、配置缺失）
+  if (isResultEnvelope(response)) {
+    return response;
+  }
+
+  if (!response || typeof response.json !== 'function') {
     return {
-      status,
-      message: getMessage(status, await response.json()),
+      status: 500,
+      message: getMessage(500),
       data: null,
     };
   }
-  const data = await response.json();
+
+  const { status } = response;
+  const body = await readJsonBody(response);
+  if (status !== 200) {
+    return {
+      status,
+      message: getMessage(status, body),
+      data: null,
+    };
+  }
+
   return {
     status,
     message: getMessage(status),
-    data,
+    data: body,
   };
 }
