@@ -1,6 +1,10 @@
 import panelHtml from './index.html';
 import { detectDarkMode, initThemeObserver } from '../../lib/theme.js';
-import { clearSelection } from '../selection-rect.js';
+import {
+  clearSelection,
+  calculateShowPosition,
+  getSelectionEndPointRect,
+} from '../selection-rect.js';
 import {
   TRANSLATE_FAILED_MESSAGE,
   NOT_FOUND_MESSAGE,
@@ -54,7 +58,7 @@ export default class Panel {
   #phoneticEl = null;
   #rootListEl = null;
   #compositionEl = null;
-  #targetRect = null;
+  #selectActionInfo = null;
   #notFoundTextEl = null;
 
   // translate section
@@ -144,43 +148,30 @@ export default class Panel {
     return this;
   }
 
-  setPosition(targetRect) {
-    this.#targetRect = targetRect;
+  setPosition(selectActionInfo) {
+    this.#selectActionInfo = selectActionInfo;
     return this.updatePosition();
   }
 
   updatePosition() {
-    if (!this.#targetRect) {
-      console.warn('targetRect is not set');
+    if (!this.#selectActionInfo) {
+      console.warn('selectActionInfo is not set');
       return this;
     }
-
-    let x = this.#targetRect.left;
-    let y = this.#targetRect.bottom + 8;
-
-    const viewportWidth = document.documentElement.clientWidth;
-    const viewportHeight = document.documentElement.clientHeight;
-
-    const style = getComputedStyle(this.#panel);
-    const panelWidth = parseInt(style.width) || 340;
-    const panelHeight = parseInt(style.height) || 200;
-
-    if (x + panelWidth > viewportWidth) {
-      x = viewportWidth - panelWidth - 10;
-    }
-    if (x < 10) x = 10;
-
-    if (y < 10) y = 10;
-    if (y + panelHeight > viewportHeight) {
-      y = this.#targetRect.top - panelHeight - 8;
-    }
+    const { x, y } = calculateShowPosition(this.#panel, this.#selectActionInfo);
 
     this.#panel.style.left = `${x}px`;
     this.#panel.style.top = `${y}px`;
 
-    const above = y < this.#targetRect.bottom + 8;
-    this.#panel.style.setProperty('--enter-y', above ? '4px' : '-4px');
-
+    const selectionEndPointRect = getSelectionEndPointRect(
+      this.#selectActionInfo.selection,
+      this.#selectActionInfo.mousePosition,
+    );
+    const isSelectionAbovePanel = y < selectionEndPointRect.bottom + 8;
+    this.#panel.style.setProperty(
+      '--enter-y',
+      isSelectionAbovePanel ? '4px' : '-4px',
+    );
     return this;
   }
 
@@ -406,7 +397,7 @@ export default class Panel {
       'no-root',
       'no-pronunciation',
     );
-    this.#targetRect = null;
+    this.#selectActionInfo = null;
 
     this.#wordEl.textContent = '';
     this.#variantInfoEl.textContent = '';

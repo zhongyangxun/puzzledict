@@ -5,7 +5,7 @@ import {
 } from '../lib/result-messages.js';
 import Panel, { PANEL_MODE } from './panel/index.js';
 import LogoButton from './logo-button/index.js';
-import { clearSelection, getSelectionClientRect } from './selection-rect';
+import { clearSelection } from './selection-rect';
 
 console.log('content script load');
 
@@ -164,7 +164,7 @@ const handlePanelQuery = async (trimed, mode, sessionId) => {
 };
 
 const queryInfo = {
-  rect: null,
+  selectAction: null,
   trimed: null,
   mode: null,
 };
@@ -176,8 +176,8 @@ const resetQueryInfo = () => {
 };
 
 const panelShow = () => {
-  const { rect } = queryInfo;
-  if (!rect) return;
+  const { selectAction } = queryInfo;
+  if (!selectAction) return;
 
   const { trimed, mode } = queryInfo;
 
@@ -185,7 +185,7 @@ const panelShow = () => {
     .resetPanel()
     .setMode(mode)
     .setLoading()
-    .setPosition(rect)
+    .setPosition(selectAction)
     .show((id) => {
       handlePanelQuery(trimed, mode, id);
     });
@@ -198,9 +198,9 @@ logoButton.addEventListener('click', () => {
 });
 
 const logoButtonShow = () => {
-  const { rect } = queryInfo;
-  if (!rect) return;
-  logoButton.setPosition(rect).show();
+  const { selectAction } = queryInfo;
+  if (!selectAction) return;
+  logoButton.setPosition(selectAction).show();
 };
 
 document.addEventListener('mouseup', (e) => {
@@ -216,7 +216,6 @@ document.addEventListener('mouseup', (e) => {
   }
 
   if (isSingleWord(trimed) || isPhrase(trimed) || isSentence(trimed)) {
-    const rect = getSelectionClientRect(selection, e);
     const mode =
       isSingleWord(trimed) || isPhrase(trimed)
         ? PANEL_MODE.DICT
@@ -224,7 +223,13 @@ document.addEventListener('mouseup', (e) => {
 
     queryInfo.trimed = trimed;
     queryInfo.mode = mode;
-    queryInfo.rect = rect;
+    queryInfo.selectAction = {
+      selection,
+      mousePosition: {
+        x: e.clientX,
+        y: e.clientY,
+      },
+    };
 
     logoButtonShow();
   }

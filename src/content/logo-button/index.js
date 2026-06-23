@@ -1,5 +1,6 @@
 import { detectDarkMode, initThemeObserver } from '../../lib/theme';
 import logoButtonHtml from './index.html';
+import { calculateShowPosition } from '../selection-rect.js';
 
 export default class LogoButton {
   static #instance = null;
@@ -51,26 +52,11 @@ export default class LogoButton {
     return this.#host === target || this.#host.contains(target);
   }
 
-  setPosition(targetRect) {
-    let x = targetRect.left;
-    let y = targetRect.bottom + 8;
-
-    const viewportWidth = document.documentElement.clientWidth;
-    const viewportHeight = document.documentElement.clientHeight;
-
-    const style = getComputedStyle(this.#logoButtonEl);
-    const logoButtonWidth = parseInt(style.width) || 32;
-    const logoButtonHeight = parseInt(style.height) || 32;
-
-    if (x + logoButtonWidth > viewportWidth) {
-      x = viewportWidth - logoButtonWidth - 10;
-    }
-    if (x < 10) x = 10;
-
-    if (y < 10) y = 10;
-    if (y + logoButtonHeight > viewportHeight) {
-      y = targetRect.top - logoButtonHeight - 8;
-    }
+  setPosition(selectActionInfo) {
+    const { x, y } = calculateShowPosition(
+      this.#logoButtonEl,
+      selectActionInfo,
+    );
 
     this.#logoButtonEl.style.left = `${x}px`;
     this.#logoButtonEl.style.top = `${y}px`;
