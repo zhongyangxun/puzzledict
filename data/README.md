@@ -15,7 +15,7 @@
 
 [high_freq_words.json](./high_freq_words.json)
 
-数据来源：[Github: skywind3000/ECDICT](https://github.com/skywind3000/ECDICT)
+数据来源：[Github: skywind3000/ECDICT](https://github.com/skywind3000/ECDICT)（MIT，许可全文见 [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md#ecdict)）
 
 ### 数据说明
 
@@ -164,7 +164,7 @@ CSV 数据：[roots](./roots/)
 
 JSON 数据：[root.json](./roots.json)
 
-数据来源：[Wikipedia: List of Greek and Latin roots in English](https://en.wikipedia.org/wiki/List_of_Greek_and_Latin_roots_in_English)
+数据来源：[Wikipedia: List of Greek and Latin roots in English](https://en.wikipedia.org/wiki/List_of_Greek_and_Latin_roots_in_English)（[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)，归属说明见 [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md#word-roots-wikipedia)）
 
 数据处理方式：用 [Wikitable2CSV](https://wikitable2csv.ggor.de/) 将原数据表格导出为 CSV，再利用[脚本](../scripts/merge-roots.js)转成 JSON 数据。
 
@@ -175,3 +175,7 @@ document.querySelectorAll('a[download]').forEach((a) => {
   a.click();
 });
 ```
+
+## 许可与归属
+
+本目录 JSON / CSV 所涉第三方数据及 `word_roots.json` 原创标注说明，见项目根目录 [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)。
