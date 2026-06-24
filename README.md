@@ -1,8 +1,8 @@
-# select-to-translate
+# puzzledict
 
-A Chrome extention for translating selected text.
+A Chrome extension for translating selected text featuring word roots.
 
-## Features (planned):
+## Features:
 
 - Translate selected text
 - Show word roots and affixes

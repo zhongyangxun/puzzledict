@@ -127,7 +127,7 @@ export default class Panel {
     }
 
     const host = document.createElement('div');
-    host.id = 'select-to-translate-host';
+    host.id = 'puzzledict-host';
     const shadow = host.attachShadow({ mode: 'closed' });
 
     shadow.innerHTML = panelHtml;
