@@ -91,6 +91,11 @@ export default [
             dest: 'dist/data',
             transform: (contents) => JSON.stringify(JSON.parse(contents)),
           },
+          // 第三方声明复制
+          {
+            src: 'THIRD_PARTY_NOTICES.md',
+            dest: 'dist',
+          },
         ],
         hook: 'buildStart',
       }),

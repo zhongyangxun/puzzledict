@@ -225,6 +225,50 @@
         flex-direction: column;
       }
 
+      .attribution-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .attribution-item {
+        font-size: 10px;
+        line-height: 14px;
+        color: var(--muted-foreground);
+        opacity: 0.85;
+        text-align: center;
+      }
+
+      .attribution-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .attribution-link:hover {
+        text-decoration: underline;
+      }
+
+      .attribution-link:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+
+      .license-tag {
+        margin-left: 4px;
+        padding: 1px 4px;
+        font-size: 9px;
+        line-height: 1.2;
+        font-weight: 500;
+        letter-spacing: 0.03em;
+        color: var(--muted-foreground);
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        vertical-align: baseline;
+      }
+
       .footer .version {
         font-size: 9px;
         line-height: 12px;
@@ -277,6 +321,32 @@
     </section>
 
     <footer class="footer">
+      <nav class="attribution" aria-label="数据来源">
+        <ul class="attribution-list">
+          <li class="attribution-item">
+            词典数据基于
+            <a
+              class="attribution-link"
+              href="https://github.com/skywind3000/ECDICT"
+              target="_blank"
+              rel="noopener noreferrer"
+              >ECDICT</a
+            >
+            <span class="license-tag">MIT</span>
+          </li>
+          <li class="attribution-item">
+            词根参考
+            <a
+              class="attribution-link"
+              href="https://en.wikipedia.org/wiki/List_of_Greek_and_Latin_roots_in_English"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Wikipedia</a
+            >
+            <span class="license-tag">CC BY-SA 4.0</span>
+          </li>
+        </ul>
+      </nav>
       <span class="version">v1.0</span>
     </footer>
   </body>
