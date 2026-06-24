@@ -7,7 +7,7 @@
     <script>
       (function () {
         try {
-          var t = localStorage.getItem('select-to-translate-test-theme');
+          var t = localStorage.getItem('puzzledict-test-theme');
           if (t === 'light' || t === 'dark') {
             document.documentElement.setAttribute('data-theme', t);
           }
@@ -407,7 +407,7 @@
     </div>
     <script>
       (function () {
-        var THEME_STORAGE = 'select-to-translate-test-theme';
+        var THEME_STORAGE = 'puzzledict-test-theme';
         var root = document.documentElement;
         var themeBtn = document.getElementById('theme-toggle');
         var mqDark = window.matchMedia('(prefers-color-scheme: dark)');
@@ -488,7 +488,7 @@
     </script>
     <script>
       (function () {
-        var STORAGE_KEY = 'select-to-translate-test-custom-words';
+        var STORAGE_KEY = 'puzzledict-test-custom-words';
         var list = document.querySelector('.words');
         var input = document.getElementById('add-word-input');
         var btn = document.getElementById('add-word-btn');

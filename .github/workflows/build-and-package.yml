@@ -34,5 +34,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v6
         with:
-          name: select-to-translate-latest # 下载时的文件名
+          name: puzzledict-latest # 下载时的文件名
           path: dist/

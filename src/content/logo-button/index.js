@@ -22,7 +22,7 @@ export default class LogoButton {
     }
 
     const host = document.createElement('div');
-    host.id = 'select-to-translate-logo-button';
+    host.id = 'puzzledict-logo-button';
     const shadow = host.attachShadow({ mode: 'closed' });
     shadow.innerHTML = logoButtonHtml;
 

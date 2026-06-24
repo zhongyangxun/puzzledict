@@ -1,7 +1,7 @@
 {
-  "name": "select-to-translate",
+  "name": "puzzledict",
   "version": "1.0.0",
-  "description": "A Chrome extention for translating selected text.",
+  "description": "A Chrome extension for translating selected text featuring word roots.",
   "main": "content.js",
   "scripts": {
     "dev": "rollup -c -w --environment NODE_ENV:development",
@@ -22,16 +22,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zhongyangxun/select-to-translate.git"
+    "url": "git+https://github.com/zhongyangxun/puzzledict.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/zhongyangxun/select-to-translate/issues"
+    "url": "https://github.com/zhongyangxun/puzzledict/issues"
   },
-  "homepage": "https://github.com/zhongyangxun/select-to-translate#readme",
+  "homepage": "https://github.com/zhongyangxun/puzzledict#readme",
   "devDependencies": {
     "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^20.5.3",

@@ -1,14 +1,16 @@
 {
   "manifest_version": 3,
-  "name": "select-to-translate",
-  "version": "1.0",
+  "name": "puzzledict",
+  "description": "Select English words and get translations and word roots instantly.",
+  "version": "1.0.0",
   "permissions": ["storage"],
   "host_permissions": [
     "https://dict.joeyzcode.com/*",
     "https://translate.joeyzcode.com/*"
   ],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_title": "puzzledict"
   },
 
   "background": {
