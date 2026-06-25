@@ -91,6 +91,11 @@ export default [
             dest: 'dist/data',
             transform: (contents) => JSON.stringify(JSON.parse(contents)),
           },
+          // 图标复制
+          {
+            src: 'assets/icons/*.png',
+            dest: 'dist/icons',
+          },
           // 第三方声明复制
           {
             src: 'THIRD_PARTY_NOTICES.md',
