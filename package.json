@@ -12,7 +12,8 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "log:server": "node scripts/remote-log-server.js",
-    "test:dict-api": "node test/dict-api.js"
+    "test:dict-api": "node test/dict-api.js",
+    "icons": "node scripts/generate-icons.js"
   },
   "lint-staged": {
     "**/*.js": [
@@ -47,6 +48,7 @@
     "lint-staged": "^16.4.0",
     "prettier": "^3.8.3",
     "rollup": "^4.60.2",
-    "rollup-plugin-copy": "^3.5.0"
+    "rollup-plugin-copy": "^3.5.0",
+    "sharp": "^0.35.2"
   }
 }
