@@ -39,7 +39,7 @@ export default [
 
   // 构建/脚本: node 环境
   {
-    files: ['*.js', 'scripts/**/*.js'],
+    files: ['*.js', 'scripts/**/*.js', 'rollup/**/*.js'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',

@@ -168,10 +168,8 @@ export default class Panel {
       this.#selectActionInfo.mousePosition,
     );
     const isSelectionAbovePanel = y < selectionEndPointRect.bottom + 8;
-    this.#panel.style.setProperty(
-      '--enter-y',
-      isSelectionAbovePanel ? '4px' : '-4px',
-    );
+    this.#panel.classList.toggle('enter-from-above', isSelectionAbovePanel);
+    this.#panel.classList.toggle('enter-from-below', !isSelectionAbovePanel);
     return this;
   }
 
@@ -396,6 +394,8 @@ export default class Panel {
       'not-found',
       'no-root',
       'no-pronunciation',
+      'enter-from-above',
+      'enter-from-below',
     );
     this.#selectActionInfo = null;
 

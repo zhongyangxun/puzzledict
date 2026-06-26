@@ -3,6 +3,7 @@ import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import { rmSync } from 'fs';
 import dotenv from 'dotenv';
+import { htmlPlugin } from './rollup/html-plugin.js';
 
 dotenv.config();
 
@@ -15,17 +16,6 @@ const terserPlugin = isProd
       },
     })
   : null;
-
-function htmlPlugin() {
-  return {
-    name: 'html-string',
-    transform(code, id) {
-      if (id.endsWith('.html')) {
-        return `export default ${JSON.stringify(code)}`;
-      }
-    },
-  };
-}
 
 function cleanPlugin(dir) {
   let cleaned = false;

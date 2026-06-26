@@ -64,11 +64,18 @@
     overflow: hidden;
     padding: 16px;
     opacity: 0;
-    /* 默认值为 0，即如果没有设置 `--enter-y`(需要 JavaScript 设置)，则不进行 `translateY` 动画 */
-    transform: translateY(var(--enter-y, 0));
+    transform: translateY(0);
     transition:
       opacity 0.17s ease-out,
       transform 0.17s ease-out;
+  }
+
+  .panel.enter-from-above {
+    transform: translateY(4px);
+  }
+
+  .panel.enter-from-below {
+    transform: translateY(-4px);
   }
 
   :host(.is-open) .panel {
@@ -78,6 +85,8 @@
 
   @media (prefers-reduced-motion: reduce) {
     .panel,
+    .panel.enter-from-above,
+    .panel.enter-from-below,
     :host(.is-open) .panel {
       transition: none;
       transform: none;
