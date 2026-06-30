@@ -49,7 +49,7 @@ export default [
     output: {
       file: 'dist/content.js',
       format: 'iife',
-      sourcemap: true,
+      sourcemap: !isProd,
     },
     plugins: [htmlPlugin(), cleanPlugin('dist'), terserPlugin],
   },
@@ -58,7 +58,7 @@ export default [
     output: {
       file: 'dist/background.js',
       format: 'es',
-      sourcemap: true,
+      sourcemap: !isProd,
     },
     plugins: [
       copy({
