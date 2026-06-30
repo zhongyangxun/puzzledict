@@ -5,6 +5,10 @@ import { PRONUNCIATION_FIX_MAP } from '../lib/pronunciation.js';
 import { queryDictionary } from '../service/dict-api/dictionary-api.js';
 import { initLogger } from './remote-log-client.js';
 import { translateText } from '../service/translate/translate.js';
+import {
+  DICT_FAILED_MESSAGE,
+  TRANSLATE_FAILED_MESSAGE,
+} from '../lib/result-messages.js';
 
 // 仅在开发模式下激活远程日志（initLogger 内部会判断 IS_DEV）
 if (IS_DEV) {
@@ -170,18 +174,17 @@ async function handleQueryDictionary(text) {
 
   // 仍然没有结果，请求 API
   if (!definition) {
-    console.log('请求 API 查词', text);
-    const clientId = await getClientId();
-    console.log('clientId', clientId);
-    const { status, message, data } = await queryDictionary(text, {
-      clientId,
-      timeoutMs: 2000,
-    });
-    console.log('response', {
-      status,
-      message,
-      data,
-    });
+    let status = null;
+    let message = null;
+    let data = null;
+    try {
+      const clientId = await getClientId();
+      ({ status, message, data } = await queryDictionary(text, { clientId }));
+    } catch (err) {
+      console.error('请求 API 查词失败', err);
+      status = 500;
+      message = DICT_FAILED_MESSAGE;
+    }
 
     if (status === 200) {
       definition = data;
@@ -200,32 +203,34 @@ async function handleQueryDictionary(text) {
 
   // 兜底：有道翻译
   if (!definition) {
+    let status = null;
+    let message = null;
+    let data = null;
     try {
       const clientId = await getClientId();
-      const {
-        status,
-        data,
-        message: translateMessage,
-      } = await translateText(text, { clientId });
-      const translation = data?.translation?.trim();
-      const isEchoed = translation?.toLowerCase() === text.trim().toLowerCase();
-
-      if (status === 200 && translation && !isEchoed) {
-        return {
-          isSuccess: true,
-          fallbackTranslation: true,
-          data: {
-            query: text,
-            translation,
-          },
-        };
-      }
-
-      if (status !== 200 && translateMessage) {
-        errMessage = translateMessage;
-      }
+      ({ status, message, data } = await translateText(text, { clientId }));
     } catch (err) {
       console.error('有道翻译兜底失败', err);
+      status = 500;
+      message = TRANSLATE_FAILED_MESSAGE;
+    }
+
+    const translation = data?.translation?.trim();
+    const isEchoed = translation?.toLowerCase() === text.trim().toLowerCase();
+
+    if (status === 200 && translation && !isEchoed) {
+      return {
+        isSuccess: true,
+        fallbackTranslation: true,
+        data: {
+          query: text,
+          translation,
+        },
+      };
+    }
+
+    if (status !== 200) {
+      errMessage = message;
     }
   }
 
