@@ -4,7 +4,7 @@ import {
   generateAbuseGuardSignV1,
 } from './abuse-guard-sign.js';
 
-export const REQUEST_TIMEOUT_MS = 3000;
+export const REQUEST_TIMEOUT_MS = 5000;
 
 /**
  * @param {string} url
