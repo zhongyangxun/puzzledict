@@ -1,10 +1,8 @@
 name: build and package
 
-# 触发条件：当你推送到 main 分支，或者手动在 Actions 页面点击触发
+# 触发条件：手动在 Actions 页面点击触发
 on:
-  push:
-    branches: [main]
-  workflow_dispatch: # 允许手动点击运行
+  workflow_dispatch:
 
 jobs:
   build:
@@ -27,12 +25,20 @@ jobs:
         run: npm ci
 
       # 执行 Rollup 打包
-      - name: Build with Rollup
+      - name: Build
+        env:
+          NODE_ENV: production
+          REQUEST_SIGNATURE_SECRET: ${{ secrets.REQUEST_SIGNATURE_SECRET }}
         run: npm run build
 
-      # 上传 Artifacts（产物）
+      - name: Read version
+        id: ver
+        run: echo "version=$(node -p "require('./manifest.json').version")" >> "$GITHUB_OUTPUT"
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v6
         with:
-          name: puzzledict-latest # 下载时的文件名
+          name: puzzledict-v${{ steps.ver.outputs.version }}-${{ github.run_number }}
           path: dist/
+          retention-days: 30
+          if-no-files-found: error
