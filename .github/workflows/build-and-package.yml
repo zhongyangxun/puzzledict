@@ -31,6 +31,20 @@ jobs:
           REQUEST_SIGNATURE_SECRET: ${{ secrets.REQUEST_SIGNATURE_SECRET }}
         run: npm run build
 
+      - name: Verify secret was injected
+        run: |
+          node -e "
+            const fs = require('fs');
+            const js = fs.readFileSync('dist/background.js', 'utf8');
+            const missing =
+              js.includes('请求签名密钥未配置') ||
+              js.includes('REQUEST_SIGNATURE_SECRET 未设置');
+            if (missing) {
+              console.error('REQUEST_SIGNATURE_SECRET was not injected at build time');
+              process.exit(1);
+            }
+          "
+
       - name: Read version
         id: ver
         run: echo "version=$(node -p "require('./manifest.json').version")" >> "$GITHUB_OUTPUT"
