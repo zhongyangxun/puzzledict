@@ -5,7 +5,6 @@ import {
 } from '../lib/result-messages.js';
 import Panel, { PANEL_MODE } from './panel/index.js';
 import LogoButton from './logo-button/index.js';
-import { clearSelection } from './selection-rect';
 
 console.log('content script load');
 
@@ -204,44 +203,54 @@ const logoButtonShow = () => {
 };
 
 document.addEventListener('mouseup', (e) => {
-  if (panel.contains(e.target) || logoButton.contains(e.target)) {
+  if (
+    // 排除非左键点击
+    e.button !== 0 ||
+    panel.contains(e.target) ||
+    logoButton.contains(e.target)
+  ) {
     return;
   }
 
-  const selection = document.getSelection();
-  const trimed = normalizeEnglishText(selection.toString());
+  // 将选区相关逻辑放在下一轮宏任务中执行，确保选区已经更新
+  // `mouseup` 与选区更新之间有两种情况：
+  // 1. 初次选中选区，或者选中新的选区：`mouseup` 触发时，选区已更新
+  // 2. 点击已有选区（视觉上将会清空选区）：`mouseup` 触发时，选区尚未清空，需要等待选区清空后再执行逻辑
+  // 关于情况 2，原因是浏览器不确定用户意图——用户点击选区可能是想要拖拽选区——所以要在 `mouseup` 前保留选区。
+  setTimeout(() => {
+    const selection = document.getSelection();
+    const trimed = normalizeEnglishText(selection.toString());
 
-  if (!trimed || !isMainlyEnglish(trimed)) {
-    return;
-  }
+    if (!trimed || !isMainlyEnglish(trimed)) {
+      return;
+    }
 
-  if (isSingleWord(trimed) || isPhrase(trimed) || isSentence(trimed)) {
-    const mode =
-      isSingleWord(trimed) || isPhrase(trimed)
-        ? PANEL_MODE.DICT
-        : PANEL_MODE.TRANSLATE;
+    if (isSingleWord(trimed) || isPhrase(trimed) || isSentence(trimed)) {
+      const mode =
+        isSingleWord(trimed) || isPhrase(trimed)
+          ? PANEL_MODE.DICT
+          : PANEL_MODE.TRANSLATE;
 
-    queryInfo.trimed = trimed;
-    queryInfo.mode = mode;
-    queryInfo.selectAction = {
-      selection,
-      mousePosition: {
-        x: e.clientX,
-        y: e.clientY,
-      },
-    };
+      queryInfo.trimed = trimed;
+      queryInfo.mode = mode;
+      queryInfo.selectAction = {
+        selection,
+        mousePosition: {
+          x: e.clientX,
+          y: e.clientY,
+        },
+      };
 
-    logoButtonShow();
-  }
+      logoButtonShow();
+    }
+  });
 });
 
 document.addEventListener('mousedown', (e) => {
   if (panel.isShown() && !panel.contains(e.target)) {
-    clearSelection();
     panel.hide(() => resetQueryInfo()).resetPanel();
   }
   if (logoButton.isShown() && !logoButton.contains(e.target)) {
-    clearSelection();
     logoButton.hide(() => resetQueryInfo());
   }
 });
