@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "puzzledict",
-  "description": "Select English words and get translations and word roots instantly.",
+  "description": "划词翻译插件，帮中文用户阅读英文网页：选中即查翻译、发音与词根拆解。",
   "version": "1.0.1",
   "icons": {
     "16": "icons/icon-16.png",
