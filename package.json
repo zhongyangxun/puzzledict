@@ -1,6 +1,6 @@
 {
   "name": "puzzledict",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Chrome extension for translating selected text featuring word roots.",
   "main": "content.js",
   "scripts": {
