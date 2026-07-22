@@ -120,7 +120,7 @@ node ./script/extract-priority_test_words.js
 
 数据：[word_roots.json](./word_roots.json)
 
-对常用词数据中前 3000 个具有词根词缀结构的单词进行 AI 标注，记录每个词的构词成分及其语源含义。
+对常用词数据中前 10000 个高频词进行 AI 词根词缀标注，记录每个词的构词成分及其语源含义。其中约 5700 个词有可拆解的词根词缀（收入 `words`），其余功能词、专有名词、基础日耳曼词等无明显词根的词收入 `_meta.checkedNoRoots`。
 
 ### 数据说明
 
