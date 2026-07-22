@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How English Words Are Built — puzzledict screenshot</title>
+    <script>
+      (function () {
+        var params = new URLSearchParams(location.search);
+        var theme = params.get('theme');
+        if (theme === 'dark' || theme === 'light') {
+          document.documentElement.setAttribute('data-theme', theme);
+        }
+        if (params.get('compact') === '1') {
+          document.documentElement.setAttribute('data-compact', '1');
+        }
+      })();
+    </script>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f4f5f7;
+        --card: #ffffff;
+        --text: #1a1d21;
+        --muted: #5c6570;
+        --border: #e2e5ea;
+        --accent: #0d7f8c;
+      }
+
+      :root[data-theme='dark'] {
+        color-scheme: dark;
+        --bg: #14171a;
+        --card: #1e2328;
+        --text: #e8eaed;
+        --muted: #9aa3ad;
+        --border: #343b44;
+        --accent: #4ec4d4;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) {
+          color-scheme: dark;
+          --bg: #14171a;
+          --card: #1e2328;
+          --text: #e8eaed;
+          --muted: #9aa3ad;
+          --border: #343b44;
+          --accent: #4ec4d4;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        min-height: 100vh;
+        font-family: Georgia, 'Times New Roman', serif;
+        font-size: 18px;
+        line-height: 1.75;
+        color: var(--text);
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .page {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 3.5rem 1.5rem 4rem;
+      }
+
+      .eyebrow {
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 0.75rem;
+      }
+
+      h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        line-height: 1.25;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.5rem;
+      }
+
+      .meta {
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
+        font-size: 0.8125rem;
+        color: var(--muted);
+        margin-bottom: 2rem;
+      }
+
+      article {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.75rem 1.85rem;
+      }
+
+      article p {
+        margin-bottom: 1.25rem;
+        text-align: justify;
+        hyphens: auto;
+      }
+
+      article p:last-child {
+        margin-bottom: 0;
+      }
+
+      .phrase-block {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border);
+      }
+
+      .phrase-label {
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 0.65rem;
+      }
+
+      .phrase {
+        font-size: 1.05rem;
+        line-height: 1.65;
+      }
+
+      /* ?compact=1 — phrase/sentence shots: hide hero, tighten bottom whitespace */
+      :root[data-compact='1'] body {
+        min-height: 0;
+      }
+
+      :root[data-compact='1'] .page {
+        padding: 2rem 1.5rem 1rem;
+      }
+
+      :root[data-compact='1'] .page-intro,
+      :root[data-compact='1'] .article-main {
+        display: none;
+      }
+
+      :root[data-compact='1'] .phrase-block {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+      }
+
+      :root[data-compact='1'] article {
+        padding: 1.35rem 1.5rem 1.15rem;
+      }
+
+      /* Hidden from screenshots — ?theme=dark|light, ?compact=1 */
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      puzzledict store screenshots
+
+      Serve locally (recommended):
+        npx serve test -p 5173
+        → http://localhost:5173/screenshot.html
+
+      Dark mode:
+        http://localhost:5173/screenshot.html?theme=dark
+
+      Phrase / sentence (less whitespace below panel):
+        http://localhost:5173/screenshot.html?compact=1
+        http://localhost:5173/screenshot.html?compact=1&theme=dark
+
+      Suggested captures (1280×800, hide bookmarks bar):
+        1. Select "interesting" — word roots hero shot (default page)
+        2. Select "development" or "understand" — dictionary lookup (default)
+        3. ?compact=1 — select the full sentence for translation shot
+    -->
+    <p class="sr-only">puzzledict screenshot page</p>
+
+    <div class="page">
+      <div class="page-intro">
+        <p class="eyebrow">Language &amp; Etymology</p>
+        <h1>How English Words Are Built</h1>
+        <p class="meta">A short reading passage for extension screenshots</p>
+      </div>
+
+      <article>
+        <div class="article-main">
+          <p>
+            Learning <em>interesting</em> words helps you
+            <em>understand</em> how <em>development</em> and
+            <em>transport</em> shape everyday <em>communication</em>. When you
+            break a word into prefixes, roots, and suffixes, patterns start to
+            repeat — and new vocabulary becomes easier to remember.
+          </p>
+          <p>
+            Try selecting a single word above, a short phrase below, or an
+            entire sentence. puzzledict shows translation, pronunciation, and
+            word-root breakdown where available.
+          </p>
+        </div>
+
+        <div class="phrase-block">
+          <p class="phrase-label">Phrase &amp; sentence</p>
+          <p class="phrase">
+            Clear communication drives meaningful development across teams.
+          </p>
+        </div>
+      </article>
+    </div>
+  </body>
+</html>
