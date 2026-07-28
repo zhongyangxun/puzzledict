@@ -222,6 +222,54 @@
     color: var(--foreground);
   }
 
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+
+  .pin-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    color: var(--muted-foreground);
+    transition:
+      background-color 0.15s,
+      color 0.15s;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .pin-btn:hover {
+    background-color: var(--muted);
+    color: var(--foreground);
+  }
+
+  .pin-btn.pinned {
+    color: var(--primary);
+    background-color: color-mix(in oklch, var(--primary) 12%, transparent);
+  }
+
+  .panel.pinned {
+    box-shadow: 0 10px 28px var(--shadow);
+  }
+
+  .panel.pinned .header {
+    cursor: move;
+    user-select: none;
+  }
+
+  .panel.dragging {
+    transition: none !important;
+    opacity: 1 !important;
+  }
+
   .definition-section {
     display: flex;
     flex-direction: column;
@@ -600,7 +648,31 @@
           </button>
         </div>
       </div>
-      <button class="close-btn">&times;</button>
+      <div class="header-actions">
+        <button
+          class="pin-btn"
+          title="钉住面板（可拖动）"
+          aria-label="钉住面板"
+          aria-pressed="false"
+        >
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 17v5" />
+            <path
+              d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"
+            />
+          </svg>
+        </button>
+        <button class="close-btn">&times;</button>
+      </div>
     </div>
     <div class="content">
       <div class="definition-section">
@@ -688,7 +760,31 @@
         <p class="skeleton-line"></p>
         <p class="skeleton-line skeleton-line-w80"></p>
       </div>
-      <button class="close-btn">&times;</button>
+      <div class="header-actions">
+        <button
+          class="pin-btn"
+          title="钉住面板（可拖动）"
+          aria-label="钉住面板"
+          aria-pressed="false"
+        >
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 17v5" />
+            <path
+              d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"
+            />
+          </svg>
+        </button>
+        <button class="close-btn">&times;</button>
+      </div>
     </div>
     <div class="content">
       <div class="translation-section">

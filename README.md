@@ -7,6 +7,7 @@ A Chrome extension for translating selected text featuring word roots.
 - Translate selected text
 - Show word roots and affixes
 - Pronunciation
+- Pin the lookup panel to a fixed area and drag it for easier reading
 
 ## Attribution
 

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Move items here into a new version section when cutting a release. -->
 
+### Added
+
+- Pin the lookup panel to a fixed position; drag the header to reposition, and keep results updating there while pinned
+
 ## [1.0.1] - 2026-07-22
 
 ### Added

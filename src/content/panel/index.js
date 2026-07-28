@@ -69,6 +69,11 @@ export default class Panel {
   #copyTranslationBtnEl = null;
   #copyResetTimer = null;
 
+  // pin / drag
+  #pinned = false;
+  #pinnedPosition = null; // { left, top }
+  #dragOffset = null; // { dx, dy }
+
   constructor(host, shadow) {
     this.#host = host;
     this.#shadow = shadow;
@@ -94,6 +99,16 @@ export default class Panel {
     shadow.querySelectorAll('.close-btn').forEach((btn) => {
       btn.addEventListener('click', () => this.handleCloseBtnClick());
     });
+
+    shadow.querySelectorAll('.pin-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.togglePin();
+      });
+    });
+
+    this.#setupDrag();
+    this.#loadPinState();
 
     shadow
       .querySelector('.dict-audio-btn')
@@ -154,6 +169,12 @@ export default class Panel {
   }
 
   updatePosition() {
+    if (this.#pinned && this.#pinnedPosition) {
+      this.#panel.style.left = `${this.#pinnedPosition.left}px`;
+      this.#panel.style.top = `${this.#pinnedPosition.top}px`;
+      return this;
+    }
+
     if (!this.#selectActionInfo) {
       console.warn('selectActionInfo is not set');
       return this;
@@ -447,7 +468,148 @@ export default class Panel {
 
   handleCloseBtnClick() {
     clearSelection();
-    this.hide();
+    this.setPinned(false);
+    this.hide(null, true);
+  }
+
+  isPinned() {
+    return this.#pinned;
+  }
+
+  setPinned(pinned) {
+    this.#pinned = !!pinned;
+    this.#panel.classList.toggle('pinned', this.#pinned);
+
+    this.#shadow.querySelectorAll('.pin-btn').forEach((btn) => {
+      btn.classList.toggle('pinned', this.#pinned);
+      btn.setAttribute('aria-pressed', this.#pinned ? 'true' : 'false');
+      btn.setAttribute(
+        'title',
+        this.#pinned ? '取消钉住' : '钉住面板（可拖动）',
+      );
+      btn.setAttribute('aria-label', this.#pinned ? '取消钉住' : '钉住面板');
+    });
+
+    if (this.#pinned) {
+      this.#pinnedPosition = this.#pinnedPosition || {
+        left: parseFloat(this.#panel.style.left) || 24,
+        top: parseFloat(this.#panel.style.top) || 24,
+      };
+    }
+
+    this.#savePinState();
+    return this;
+  }
+
+  togglePin() {
+    this.setPinned(!this.#pinned);
+    if (this.#pinned) {
+      this.show();
+    }
+    return this;
+  }
+
+  #savePinState() {
+    try {
+      chrome.storage?.local?.set({
+        puzzledictPin: {
+          pinned: this.#pinned,
+          pos: this.#pinnedPosition,
+        },
+      });
+    } catch {
+      // ignore storage errors in restricted contexts
+    }
+    return this;
+  }
+
+  #loadPinState() {
+    try {
+      chrome.storage?.local?.get({ puzzledictPin: null }, (result) => {
+        const saved = result?.puzzledictPin;
+        if (saved?.pos) {
+          this.#pinnedPosition = saved.pos;
+        }
+        if (!saved?.pinned) {
+          return;
+        }
+
+        this.#pinned = true;
+        this.#panel.classList.add('pinned');
+        this.#shadow.querySelectorAll('.pin-btn').forEach((btn) => {
+          btn.classList.add('pinned');
+          btn.setAttribute('aria-pressed', 'true');
+          btn.setAttribute('title', '取消钉住');
+          btn.setAttribute('aria-label', '取消钉住');
+        });
+
+        if (this.#pinnedPosition) {
+          this.#panel.style.left = `${this.#pinnedPosition.left}px`;
+          this.#panel.style.top = `${this.#pinnedPosition.top}px`;
+        }
+      });
+    } catch {
+      // ignore storage errors in restricted contexts
+    }
+    return this;
+  }
+
+  #setupDrag() {
+    const onHeaderMouseDown = (e) => {
+      const target = e.target;
+      if (target.closest('button') || target.closest('a')) {
+        return;
+      }
+      if (!this.#pinned) {
+        return;
+      }
+
+      const rect = this.#panel.getBoundingClientRect();
+      this.#dragOffset = {
+        dx: e.clientX - rect.left,
+        dy: e.clientY - rect.top,
+      };
+      this.#panel.classList.add('dragging');
+      e.preventDefault();
+    };
+
+    const onMouseMove = (e) => {
+      if (!this.#dragOffset) {
+        return;
+      }
+
+      const viewportWidth = document.documentElement.clientWidth;
+      const viewportHeight = document.documentElement.clientHeight;
+      const panelWidth = this.#panel.offsetWidth;
+      const panelHeight = this.#panel.offsetHeight;
+
+      let left = e.clientX - this.#dragOffset.dx;
+      let top = e.clientY - this.#dragOffset.dy;
+
+      left = Math.max(8, Math.min(left, viewportWidth - panelWidth - 8));
+      top = Math.max(8, Math.min(top, viewportHeight - panelHeight - 8));
+
+      this.#panel.style.left = `${left}px`;
+      this.#panel.style.top = `${top}px`;
+      this.#pinnedPosition = { left, top };
+    };
+
+    const onMouseUp = () => {
+      if (!this.#dragOffset) {
+        return;
+      }
+      this.#dragOffset = null;
+      this.#panel.classList.remove('dragging');
+      this.#savePinState();
+    };
+
+    this.#shadow.querySelectorAll('.header').forEach((header) => {
+      header.addEventListener('mousedown', onHeaderMouseDown);
+    });
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+
+    return this;
   }
 
   async handleCopyTranslationBtnClick() {
@@ -471,7 +633,11 @@ export default class Panel {
     }
   }
 
-  hide(callback) {
+  hide(callback, force = false) {
+    if (!force && this.#pinned) {
+      return this;
+    }
+
     this.#host.classList.remove('is-open');
     this.#host.style.display = 'none';
     this.stopAudio();

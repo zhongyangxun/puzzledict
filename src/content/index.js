@@ -241,12 +241,28 @@ document.addEventListener('mouseup', (e) => {
         },
       };
 
-      logoButtonShow();
+      if (panel.isPinned()) {
+        logoButton.hide();
+        panelShow();
+      } else {
+        logoButtonShow();
+      }
     }
   });
 });
 
 document.addEventListener('mousedown', (e) => {
+  if (panel.isPinned()) {
+    if (
+      !panel.contains(e.target) &&
+      !logoButton.contains(e.target) &&
+      logoButton.isShown()
+    ) {
+      logoButton.hide();
+    }
+    return;
+  }
+
   if (panel.isShown() && !panel.contains(e.target)) {
     panel.hide(() => resetQueryInfo()).resetPanel();
   }
