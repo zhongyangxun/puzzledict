@@ -99,6 +99,28 @@
         margin-top: 4px;
       }
 
+      .tip {
+        margin-top: 10px;
+        padding: 8px 10px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: color-mix(in oklch, var(--primary) 8%, transparent);
+      }
+
+      .tip-title {
+        font-size: 11px;
+        line-height: 16px;
+        font-weight: 600;
+        color: var(--primary);
+      }
+
+      .tip-text {
+        margin-top: 2px;
+        font-size: 11px;
+        line-height: 16px;
+        color: var(--muted-foreground);
+      }
+
       .hero {
         margin-top: 10px;
         background-color: var(--card);
@@ -310,6 +332,12 @@
         <h1 class="brand">puzzledict</h1>
       </div>
       <p class="tagline">在网页选中英文，点击弹出图标，即可翻译</p>
+      <div class="tip" aria-label="钉住面板说明">
+        <p class="tip-title">新功能：钉住面板</p>
+        <p class="tip-text">
+          查词后点右上角图钉，可固定到屏幕一角并拖动标题栏移动；钉住后继续划词会在原位置更新。
+        </p>
+      </div>
     </section>
 
     <section class="hero" aria-label="查词效果预览">

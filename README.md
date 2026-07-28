@@ -7,7 +7,15 @@ A Chrome extension for translating selected text featuring word roots.
 - Translate selected text
 - Show word roots and affixes
 - Pronunciation
-- Pin the lookup panel to a fixed area and drag it for easier reading
+- **Pin panel（钉住面板）**：pin the lookup result to a fixed screen area, drag the header to move it, and keep updating new lookups in place
+
+## How to pin the panel
+
+1. Select English text on a page and open the lookup panel
+2. Click the **pin** icon next to the close button
+3. Drag the panel header to a convenient corner
+4. Keep selecting new words — results update in the same place
+5. Click pin again to unpin, or click × to close
 
 ## Attribution
 
