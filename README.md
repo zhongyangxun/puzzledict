@@ -15,3 +15,8 @@ A Chrome extension for translating selected text featuring word roots.
 - Word root annotations in `word_roots.json` — original to this project
 
 See [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md) for license texts.
+
+## Pull Requests
+
+`puzzledict` is a personal project. External pull requests are not accepted
+and will be closed without review.
