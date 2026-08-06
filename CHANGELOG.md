@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Tighten phrase detection to skip useless dictionary lookups
+- Tighten phrase / token detection so more lookups go straight to translate
+  instead of a dict miss then fallback
 
 ## [1.0.1] - 2026-07-22
 
