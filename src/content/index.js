@@ -12,6 +12,9 @@ const logoButton = LogoButton.create();
 
 const panel = Panel.create();
 
+const TEXT_LENGTH_LIMIT = 5000;
+const MAX_PHRASE_WORD_COUNT = 3;
+
 // 划词选区规范化：统一空白与排版字符，再交给 isMainlyEnglish / 查词 / 翻译
 const normalizeEnglishText = (text) =>
   text
@@ -30,10 +33,14 @@ const isMainlyEnglish = (text) => /^[\x20-\x7E]+$/.test(text);
 
 const isSingleWord = (text) => {
   const trimmedText = text.trim();
-  if (trimmedText.length < 2 || trimmedText.length > 5000) return false;
+  if (trimmedText.length < 2 || trimmedText.length > TEXT_LENGTH_LIMIT)
+    return false;
   const singleWordRegex = /^[a-zA-Z]+(?:[''-][a-zA-Z]+)?$/;
   return singleWordRegex.test(trimmedText);
 };
+
+// 句读 + 双引号；故意不含 '
+const hasStructuralPunct = (text) => /[.!?。！？,;:，；："]/.test(text);
 
 const isPhrase = (text) => {
   const trimmed = text.trim();
@@ -42,24 +49,15 @@ const isPhrase = (text) => {
   // 2. 必须包含空格
   const hasSpace = /\s+/.test(trimmed);
 
-  // 3. 统计单词数：通常短语在 2-6 个单词之间
+  // 3. 统计单词数
   const wordCount = trimmed.split(/\s+/).length;
 
-  // 4. 排除含有明显句子特征的标点
-  const hasSentenceEnd = /[.!?。！？\n]/.test(trimmed);
-
-  // 逻辑：有空格 且 单词数在 2-10 之间 且 没有句尾标点
-  return hasSpace && wordCount > 1 && wordCount <= 10 && !hasSentenceEnd;
-};
-
-const isSentence = (text) => {
-  const trimmed = text.trim();
-  if (trimmed.length < 2 || trimmed.length > 5000) return false;
-
-  const wordCount = trimmed.split(/\s+/).length;
-  const hasSentenceEnd = /[.!?。！？\n]/.test(trimmed);
-
-  return wordCount > 10 || hasSentenceEnd;
+  return (
+    hasSpace &&
+    wordCount > 1 &&
+    wordCount <= MAX_PHRASE_WORD_COUNT &&
+    !hasStructuralPunct(trimmed)
+  );
 };
 
 const requestLookup = async (text, type) => {
@@ -221,28 +219,30 @@ document.addEventListener('mouseup', (e) => {
     const selection = document.getSelection();
     const trimed = normalizeEnglishText(selection.toString());
 
-    if (!trimed || !isMainlyEnglish(trimed)) {
+    if (
+      !trimed ||
+      !isMainlyEnglish(trimed) ||
+      trimed.length > TEXT_LENGTH_LIMIT
+    ) {
       return;
     }
 
-    if (isSingleWord(trimed) || isPhrase(trimed) || isSentence(trimed)) {
-      const mode =
-        isSingleWord(trimed) || isPhrase(trimed)
-          ? PANEL_MODE.DICT
-          : PANEL_MODE.TRANSLATE;
+    const mode =
+      isSingleWord(trimed) || isPhrase(trimed)
+        ? PANEL_MODE.DICT
+        : PANEL_MODE.TRANSLATE; // 非词非短语一律交给翻译处理
 
-      queryInfo.trimed = trimed;
-      queryInfo.mode = mode;
-      queryInfo.selectAction = {
-        selection,
-        mousePosition: {
-          x: e.clientX,
-          y: e.clientY,
-        },
-      };
+    queryInfo.trimed = trimed;
+    queryInfo.mode = mode;
+    queryInfo.selectAction = {
+      selection,
+      mousePosition: {
+        x: e.clientX,
+        y: e.clientY,
+      },
+    };
 
-      logoButtonShow();
-    }
+    logoButtonShow();
   });
 });
 
