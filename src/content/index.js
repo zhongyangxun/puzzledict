@@ -31,33 +31,26 @@ const normalizeEnglishText = (text) =>
 
 const isMainlyEnglish = (text) => /^[\x20-\x7E]+$/.test(text);
 
+// 词典词元：纯字母，或字母间夹 ' / -（可多段，如 bird's-eye）
+const isWordToken = (token) => /^[a-zA-Z]+(?:['-][a-zA-Z]+)*$/.test(token);
+
 const isSingleWord = (text) => {
   const trimmedText = text.trim();
   if (trimmedText.length < 2 || trimmedText.length > TEXT_LENGTH_LIMIT)
     return false;
-  const singleWordRegex = /^[a-zA-Z]+(?:[''-][a-zA-Z]+)?$/;
-  return singleWordRegex.test(trimmedText);
+  return isWordToken(trimmedText);
 };
-
-// 句读 + 双引号；故意不含 '
-const hasStructuralPunct = (text) => /[.!?。！？,;:，；："]/.test(text);
 
 const isPhrase = (text) => {
   const trimmed = text.trim();
 
-  // 1. 排除单字（已经由 isSingleWord 处理）
-  // 2. 必须包含空格
-  const hasSpace = /\s+/.test(trimmed);
+  // 必须包含空格
+  if (!/\s+/.test(trimmed)) return false;
 
-  // 3. 统计单词数
-  const wordCount = trimmed.split(/\s+/).length;
+  // 分割为词元
+  const tokens = trimmed.split(/\s+/);
 
-  return (
-    hasSpace &&
-    wordCount > 1 &&
-    wordCount <= MAX_PHRASE_WORD_COUNT &&
-    !hasStructuralPunct(trimmed)
-  );
+  return tokens.length <= MAX_PHRASE_WORD_COUNT && tokens.every(isWordToken);
 };
 
 const requestLookup = async (text, type) => {
