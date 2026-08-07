@@ -1,6 +1,7 @@
 import { detectDarkMode, initThemeObserver } from '../../lib/theme';
 import logoButtonHtml from './index.html';
 import { calculateShowPosition } from '../selection-rect.js';
+import { createShadowHost } from '../../lib/shadow-host.js';
 
 export default class LogoButton {
   static #instance = null;
@@ -21,12 +22,10 @@ export default class LogoButton {
       return LogoButton.#instance;
     }
 
-    const host = document.createElement('div');
-    host.id = 'puzzledict-logo-button';
-    const shadow = host.attachShadow({ mode: 'closed' });
-    shadow.innerHTML = logoButtonHtml;
-
-    document.body.appendChild(host);
+    const { host, shadow } = createShadowHost({
+      id: 'puzzledict-logo-button',
+      html: logoButtonHtml,
+    });
 
     LogoButton.#instance = new LogoButton(host, shadow);
     return LogoButton.#instance;

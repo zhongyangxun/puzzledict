@@ -9,6 +9,8 @@ import {
   TRANSLATE_FAILED_MESSAGE,
   NOT_FOUND_MESSAGE,
 } from '../../lib/result-messages.js';
+import { createShadowHost } from '../../lib/shadow-host.js';
+
 // POS tags sourced from ECDICT
 const VALID_POS_TAGS = new Set([
   'n.', // noun
@@ -126,13 +128,10 @@ export default class Panel {
       return Panel.#instance;
     }
 
-    const host = document.createElement('div');
-    host.id = 'puzzledict-host';
-    const shadow = host.attachShadow({ mode: 'closed' });
-
-    shadow.innerHTML = panelHtml;
-
-    document.body.appendChild(host);
+    const { host, shadow } = createShadowHost({
+      id: 'puzzledict-panel',
+      html: panelHtml,
+    });
 
     Panel.#instance = new Panel(host, shadow);
     return Panel.#instance;
