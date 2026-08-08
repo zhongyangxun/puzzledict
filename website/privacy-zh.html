@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>puzzledict - 隐私政策</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 720px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        line-height: 1.6;
+        color: #222;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      h2 {
+        font-size: 1.1rem;
+        margin-top: 1.5rem;
+      }
+      a {
+        color: #0969da;
+      }
+      .updated {
+        color: #666;
+        font-size: 0.9rem;
+      }
+      .lang {
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <p class="lang"><a href="privacy.html">English</a> · 中文</p>
+    <h1>puzzledict 隐私政策</h1>
+    <p class="updated">最后更新：2026 年 6 月 30 日</p>
+
+    <p>
+      puzzledict（「我们」「本扩展」）是一款浏览器扩展，帮助你在网页上查询英文单词并获得翻译。本政策说明扩展会处理哪些数据以及原因。
+    </p>
+
+    <h2>我们处理的数据</h2>
+    <ul>
+      <li>
+        <strong>你选中的文本</strong>
+        ——当你主动选中文本并触发查询或翻译时，该文本会被发送到我们的服务器以提供服务。我们不会读取或收集整页内容，也不会收集你的浏览历史。
+      </li>
+      <li>
+        <strong>匿名客户端 ID</strong>
+        ——一个保存在浏览器本地的随机 UUID，会随 API
+        请求一并发送，用于限流与防止滥用。该 ID 不会与你的真实身份关联。
+      </li>
+      <li>
+        <strong>本地缓存</strong>
+        ——查询与翻译结果可能缓存在
+        <code>chrome.storage.local</code>
+        中（词典缓存最长 7 天；翻译缓存最长 3 天），以提升性能。
+      </li>
+    </ul>
+
+    <h2>我们不收集的数据</h2>
+    <ul>
+      <li>无需注册账号</li>
+      <li>不收集邮箱或支付信息</li>
+      <li>扩展内不含分析或广告追踪器</li>
+    </ul>
+
+    <h2>第三方服务</h2>
+    <p>选中的文本可能经由以下服务处理：</p>
+    <ul>
+      <li>我们的词典 API：<code>dict.joeyzcode.com</code></li>
+      <li>
+        我们的翻译网关：<code>translate.joeyzcode.com</code>；必要时可能调用第三方翻译服务商（例如有道）
+      </li>
+    </ul>
+    <p>
+      词典与词根数据包含第三方来源，详见
+      <a
+        href="https://github.com/zhongyangxun/puzzledict/blob/main/THIRD_PARTY_NOTICES.md"
+        >第三方声明（Third-Party Notices）</a
+      >。
+    </p>
+
+    <h2>我们如何使用数据</h2>
+    <p>
+      数据仅用于提供词典查询与翻译功能、在本地缓存结果，以及防止 API
+      滥用。我们不会出售你的数据。
+    </p>
+
+    <h2>数据保留</h2>
+    <ul>
+      <li>本地缓存按上文 TTL 自动过期。</li>
+      <li>卸载扩展将清除本地存储的数据。</li>
+      <li>
+        服务端数据仅用于请求处理与限流，属短暂处理；我们不会建立用户画像。
+      </li>
+    </ul>
+
+    <h2>权限说明</h2>
+    <ul>
+      <li><strong>storage</strong> —— 存储客户端 ID 与缓存</li>
+      <li>
+        <strong>host permissions（主机权限）</strong> —— 仅用于与我们的 API 通信
+      </li>
+      <li>
+        <strong>在所有页面注入 content script</strong>
+        ——用于检测你选中的文本；不会自动采集数据
+      </li>
+    </ul>
+
+    <h2>儿童</h2>
+    <p>本扩展不面向 13 岁以下儿童。</p>
+
+    <h2>政策变更</h2>
+    <p>我们可能会更新本政策。「最后更新」日期将反映变更时间。</p>
+
+    <h2>联系我们</h2>
+    <p>
+      如有疑问，请通过
+      <a href="https://github.com/zhongyangxun/puzzledict/issues"
+        >GitHub Issues</a
+      >
+      或邮件
+      <a href="mailto:joeyzcode.dev@gmail.com">joeyzcode.dev@gmail.com</a>
+      联系。
+    </p>
+  </body>
+</html>
