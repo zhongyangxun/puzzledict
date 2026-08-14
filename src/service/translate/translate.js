@@ -11,7 +11,7 @@ import {
   TRANSLATE_SUCCESS_MESSAGE,
 } from '../../lib/result-messages.js';
 import { getTranslateCache, setTranslateCache } from './cache';
-import { IS_DEV } from '../../lib/build-env.js';
+import { IS_DEV, FORCE_API } from '../../lib/build-env.js';
 import {
   TRANSLATE_DEV_URL,
   TRANSLATE_PROD_URL,
@@ -43,13 +43,16 @@ export const translateText = async (
   { clientId, timeoutMs = REQUEST_TIMEOUT_MS },
 ) => {
   const trimed = text.trim();
-  const cache = await getTranslateCache(trimed);
-  if (cache) {
-    return {
-      status: 200,
-      message: TRANSLATE_SUCCESS_MESSAGE,
-      data: cache,
-    };
+
+  if (!FORCE_API) {
+    const cache = await getTranslateCache(trimed);
+    if (cache) {
+      return {
+        status: 200,
+        message: TRANSLATE_SUCCESS_MESSAGE,
+        data: cache,
+      };
+    }
   }
 
   const response = await postJson(
@@ -63,10 +66,9 @@ export const translateText = async (
     getMessage,
   );
 
-  if (status === 200) {
+  if (status === 200 && !FORCE_API) {
     await setTranslateCache(trimed, data);
-
-    return { status, message, data };
   }
-  return { status, message, data: null };
+
+  return { status, message, data };
 };

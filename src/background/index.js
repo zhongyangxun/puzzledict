@@ -1,4 +1,4 @@
-import { IS_DEV } from '../lib/build-env.js';
+import { FORCE_API, IS_DEV } from '../lib/build-env.js';
 import { QUERY_DICT, TRANSLATE_SENTENCE } from '../lib/message-types.js';
 import { EXCHANGES } from '../lib/exchanges.js';
 import { PRONUNCIATION_FIX_MAP } from '../lib/pronunciation.js';
@@ -55,6 +55,11 @@ async function initClientId() {
 }
 
 async function loadDict() {
+  if (FORCE_API) {
+    dict = {};
+    return dict;
+  }
+
   if (dict) return dict;
 
   const url = chrome.runtime.getURL('data/high_freq_words.json');

@@ -43,6 +43,15 @@ function watchFilesPlugin(files) {
   };
 }
 
+function envReplacements(entries) {
+  return Object.fromEntries(
+    entries.map(([key, fallback = '']) => [
+      `process.env.${key}`,
+      JSON.stringify(process.env[key] ?? fallback),
+    ]),
+  );
+}
+
 export default [
   {
     input: 'src/content/index.js',
@@ -95,10 +104,11 @@ export default [
         hook: 'buildStart',
       }),
       replace({
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-        'process.env.REQUEST_SIGNATURE_SECRET': JSON.stringify(
-          process.env.REQUEST_SIGNATURE_SECRET,
-        ),
+        ...envReplacements([
+          ['NODE_ENV'],
+          ['REQUEST_SIGNATURE_SECRET'],
+          ['FORCE_API'],
+        ]),
         // 防止变量被替换
         preventAssignment: true,
       }),

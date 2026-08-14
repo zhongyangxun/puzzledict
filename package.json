@@ -5,6 +5,7 @@
   "main": "content.js",
   "scripts": {
     "dev": "rollup -c -w --environment NODE_ENV:development",
+    "dev:force-api": "rollup -c -w --environment NODE_ENV:development,FORCE_API:true",
     "build": "rollup -c --environment NODE_ENV:production",
     "prepare": "husky",
     "lint": "eslint .",
