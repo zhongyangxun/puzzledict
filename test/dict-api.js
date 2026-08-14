@@ -3,6 +3,16 @@ import { parseArgs, styleText } from 'node:util';
 import { postJson, REQUEST_TIMEOUT_MS } from '../src/service/api-client.js';
 import { DICT_DEV_URL, DICT_PROD_URL } from '../src/lib/api.js';
 
+if (!process.env.REQUEST_SIGNATURE_SECRET) {
+  const message = `
+未能加载环境变量 \`REQUEST_SIGNATURE_SECRET\`，请在仓库根目录运行，或使用 \`npm run test:dict-api\`，例如：
+npm run test:dict-api -- -pt "hello"
+`.trim();
+
+  console.error(message);
+  process.exit(1);
+}
+
 console.log('dict-api 测试开始');
 
 const { values } = parseArgs({
