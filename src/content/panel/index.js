@@ -293,6 +293,19 @@ export default class Panel {
     return this;
   }
 
+  getPhoneticText(phonetic) {
+    if (!phonetic) return '发音:';
+
+    let phoneticText = phonetic;
+
+    // only pick the first one if there are multiple phonetic symbols (separated by ';')
+    if (phoneticText.includes(';')) {
+      [phoneticText] = phoneticText.split(';');
+    }
+
+    return `/${phoneticText}/`;
+  }
+
   setDictContent({
     word,
     definition,
@@ -305,7 +318,7 @@ export default class Panel {
     if (definition) {
       const { phonetic, translation } = definition;
       const translations = this.processTranslation(translation);
-      const phoneticText = phonetic ? `/${phonetic}/` : '发音:';
+      const phoneticText = this.getPhoneticText(phonetic);
 
       this.#definitionSectionEl.innerHTML =
         this.generateDefSectionHTML(translations);
