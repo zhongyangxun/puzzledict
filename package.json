@@ -20,6 +20,9 @@
     "**/*.js": [
       "eslint --fix",
       "prettier --write"
+    ],
+    "**/*.{html,json,md,yml,yaml}": [
+      "prettier --write"
     ]
   },
   "repository": {
