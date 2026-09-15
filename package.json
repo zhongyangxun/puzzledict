@@ -16,6 +16,7 @@
     "format:check": "prettier . --check",
     "log:server": "node scripts/remote-log-server.js",
     "test:dict-api": "node test/dict-api.js",
+    "test:selection-text": "node --test test/selection-text.js",
     "icons": "node scripts/generate-icons.js"
   },
   "lint-staged": {

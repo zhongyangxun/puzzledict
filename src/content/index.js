@@ -7,6 +7,10 @@ import {
   DICT_FAILED_MESSAGE,
   TRANSLATE_FAILED_MESSAGE,
 } from '../lib/result-messages.js';
+import {
+  isMainlyLatinText,
+  normalizeEnglishText,
+} from '../lib/selection-text.js';
 import LogoButton from './logo-button/index.js';
 import Panel, { PANEL_MODE } from './panel/index.js';
 import { throttle } from '../lib/throtte.js';
@@ -19,22 +23,6 @@ const panel = Panel.create();
 
 const TEXT_LENGTH_LIMIT = 5000;
 const MAX_PHRASE_WORD_COUNT = 3;
-
-// 划词选区规范化：统一空白与排版字符，再交给 isMainlyEnglish / 查词 / 翻译
-const normalizeEnglishText = (text) =>
-  text
-    // 去掉首尾空白
-    .trim()
-    // 换行、制表等连续空白压成单个空格（跨行选中可通过 isMainlyEnglish）
-    .replace(/\s+/g, ' ')
-    // 弯单引号、撇号 → ASCII 单引号 '
-    .replace(/[\u2018\u2019\u201A\u2032]/g, "'")
-    // 弯双引号 → ASCII 双引号 "
-    .replace(/[\u201C\u201D\u201E]/g, '"')
-    // 短破折号、长破折号 → ASCII 连字符 -
-    .replace(/[\u2013\u2014]/g, '-');
-
-const isMainlyEnglish = (text) => /^[\x20-\x7E]+$/.test(text);
 
 // 词典词元：纯字母，或字母间夹 ' / -（可多段，如 bird's-eye）
 const isWordToken = (token) => /^[a-zA-Z]+(?:['-][a-zA-Z]+)*$/.test(token);
@@ -229,7 +217,7 @@ document.addEventListener('mouseup', (e) => {
 
     if (
       !trimed ||
-      !isMainlyEnglish(trimed) ||
+      !isMainlyLatinText(trimed) ||
       trimed.length > TEXT_LENGTH_LIMIT
     ) {
       return;
