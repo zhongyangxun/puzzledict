@@ -149,6 +149,16 @@
         text-align: justify;
         hyphens: auto;
       }
+      .samples > * + * {
+        margin-top: 0.85rem;
+        padding-top: 0.85rem;
+        border-top: 1px solid var(--border);
+      }
+      .sample-meta {
+        margin: 0.35rem 0 0;
+        font-size: 0.8125rem;
+        color: var(--muted);
+      }
       .add-word {
         display: flex;
         flex-wrap: wrap;
@@ -366,6 +376,9 @@
             <li>swollen</li>
             <li>Hampstead</li>
             <li>Granada</li>
+            <li>café</li>
+            <li>naïve</li>
+            <li>résumé</li>
           </ul>
           <div class="add-word">
             <label class="visually-hidden" for="add-word-input"
@@ -386,22 +399,174 @@
 
       <section>
         <h2>短语与短句</h2>
-        <div class="card">
-          <p class="sample">
-            The quick brown fox jumps over the lazy dog. Learning a language
-            takes patience and consistent practice. Try selecting individual
-            words or whole phrases above and below.
-          </p>
+        <div class="card samples">
+          <div>
+            <p class="sample">
+              The quick brown fox jumps over the lazy dog. Learning a language
+              takes patience and consistent practice. Try selecting individual
+              words or whole phrases above and below.
+            </p>
+            <p class="sample-meta">
+              期望：整句走翻译；划 look up / brown fox 等短语走查词
+            </p>
+          </div>
+          <div>
+            <p class="sample">look up · bird's-eye · ice cream</p>
+            <p class="sample-meta">期望：短语走查词（DICT）</p>
+          </div>
         </div>
       </section>
 
       <section>
-        <h2>中英混排</h2>
-        <div class="card">
-          <p class="sample">
-            请尝试划选 English words 或 中文词语。This page is only for manual
-            testing of the extension.
-          </p>
+        <h2>应弹出 · 排版与符号</h2>
+        <div class="card samples">
+          <div>
+            <p class="sample">She paused… then left.</p>
+            <p class="sample-meta">期望：弹出；省略号规范为 ...；走翻译</p>
+          </div>
+          <div>
+            <p class="sample">Water boils at 100 ˚C at sea level.</p>
+            <p class="sample-meta">期望：弹出；˚C 规范为 °C；走翻译</p>
+          </div>
+          <div>
+            <p class="sample">Water boils at 100 ℃. Oil may hit 212 ℉.</p>
+            <p class="sample-meta">期望：弹出；℃ / ℉ 规范为 °C / °F；走翻译</p>
+          </div>
+          <div>
+            <p class="sample">
+              It cost £20 — about €23. Copyright © 2026 Foo™.
+            </p>
+            <p class="sample-meta">期望：弹出；破折号规范为 -；走翻译</p>
+          </div>
+          <div>
+            <p class="sample">
+              “It’s fine,” she said — the café is naïve about résumé fraud.
+            </p>
+            <p class="sample-meta">期望：弹出；弯引号变直引号；走翻译</p>
+          </div>
+          <div>
+            <p class="sample">
+              A 5 μm β-carotene crystal. Result: 3 × 4 ≠ 11 ± 2 ≈ half (½).
+            </p>
+            <p class="sample-meta">
+              期望：弹出；科技 / 数学符号不挡门禁；走翻译
+            </p>
+          </div>
+          <div>
+            <p class="sample">the ﬁnal conﬂict oﬀers aﬃx shaﬄe</p>
+            <p class="sample-meta">
+              期望：弹出；PDF 连字展开为 final / conflict / offers / affix /
+              shaffle
+            </p>
+          </div>
+          <div>
+            <p class="sample">Hello world 😀 Nice job! 👍🎉</p>
+            <p class="sample-meta">期望：弹出；英文夹表情不挡门禁；走翻译</p>
+          </div>
+          <div>
+            <p class="sample">
+              She paused… then left. 😂😂 See you tomorrow 👋
+            </p>
+            <p class="sample-meta">期望：弹出；省略号 + 表情并存；走翻译</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>应弹出 · 中英夹杂（英文为主）</h2>
+        <div class="card samples">
+          <div>
+            <p class="sample">The character 好 means good.</p>
+            <p class="sample-meta">期望：弹出；走翻译</p>
+          </div>
+          <div>
+            <p class="sample">
+              Please try selecting English words 或 short phrases on this page.
+              This page is only for manual testing of the extension.
+            </p>
+            <p class="sample-meta">期望：弹出；走翻译</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>应弹出 · 其它拉丁语</h2>
+        <div class="card samples">
+          <div>
+            <p class="sample">
+              Le renard brun rapide saute par-dessus le chien paresseux près de
+              la rivière.
+            </p>
+            <p class="sample-meta">
+              期望：弹出（门禁只认拉丁字母，不区分英 / 法 / 德）
+            </p>
+          </div>
+          <div>
+            <p class="sample">
+              Der schnelle braune Fuchs springt über den faulen Hund am Fluss.
+            </p>
+            <p class="sample-meta">
+              期望：弹出（门禁只认拉丁字母，不区分英 / 法 / 德）
+            </p>
+          </div>
+          <div>
+            <p class="sample">bonjour le monde · Guten Morgen</p>
+            <p class="sample-meta">期望：弹出；短词同样走拉丁字母比例</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>不应弹出</h2>
+        <div class="card samples">
+          <div>
+            <p class="sample">这个 word 的意思</p>
+            <p class="sample-meta">期望：不弹出（中文为主）</p>
+          </div>
+          <div>
+            <p class="sample">这是一句中文。こんにちは。Привет.</p>
+            <p class="sample-meta">
+              期望：分别划选中文 / 日文 / 俄文时均不弹出
+            </p>
+          </div>
+          <div>
+            <p class="sample">Καλημέρα κόσμε hello</p>
+            <p class="sample-meta">
+              期望：不弹出（希腊文为主，夹英文词不再漏网）
+            </p>
+          </div>
+          <div>
+            <p class="sample">2026 · ±≈→</p>
+            <p class="sample-meta">期望：纯数字 / 纯符号不弹出</p>
+          </div>
+          <div>
+            <p class="sample">😀😀 👍🎉 😂</p>
+            <p class="sample-meta">期望：纯表情不弹出</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>DICT vs TRANSLATE</h2>
+        <div class="card samples">
+          <div>
+            <p class="sample">hello</p>
+            <p class="sample-meta">期望：DICT</p>
+          </div>
+          <div>
+            <p class="sample">look up</p>
+            <p class="sample-meta">期望：DICT（短语）</p>
+          </div>
+          <div>
+            <p class="sample">She paused... then left.</p>
+            <p class="sample-meta">期望：TRANSLATE（句子 / 带标点）</p>
+          </div>
+          <div>
+            <p class="sample">café</p>
+            <p class="sample-meta">
+              期望：目前走 TRANSLATE（变音符词尚未进查词）
+            </p>
+          </div>
         </div>
       </section>
     </div>
