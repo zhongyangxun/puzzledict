@@ -9,6 +9,7 @@ import {
   clearSelection,
   calculateShowPosition,
   getSelectionEndPointRect,
+  SELECTION_GAP,
 } from '../selection-rect.js';
 
 // POS tags sourced from ECDICT
@@ -34,6 +35,9 @@ const VALID_POS_TAGS = new Set([
 ]);
 
 const ATTR_PRONUNCIATION = 'data-pronunciation';
+
+// 内容区至少保留约 3 行文本（padding-top 12 + 3 × 22.75）
+const MIN_CONTENT_HEIGHT = 80;
 
 // Common English voices: Chrome / Edge / macOS.
 const PREFERRED_ENGLISH_VOICES = [
@@ -140,6 +144,18 @@ export default class Panel {
 
     initThemeObserver(() => this.updateTheme());
 
+    // 内容渲染、展开原文、骨架屏切换等都会改变面板尺寸，统一在此重新定位
+    const resizeObserver = new ResizeObserver(() => {
+      if (this.isShown() && this.#selectActionInfo) {
+        this.updatePosition();
+      }
+    });
+    // 只观察高度由内容决定、不受 --panel-max-height 影响的元素，
+    // 否则 updatePosition 收紧上限会再次触发自身，形成反馈环
+    shadow
+      .querySelectorAll('.header, .content > *, .footer')
+      .forEach((el) => resizeObserver.observe(el));
+
     this.setMode(PANEL_MODE.DICT);
     this.hide();
   }
@@ -194,19 +210,36 @@ export default class Panel {
       console.warn('selectActionInfo is not set');
       return this;
     }
-    const { x, y } = calculateShowPosition(this.#panel, this.#selectActionInfo);
+    // 先移除上次按可用空间收紧的上限，才能测到内容的自然高度
+    this.#panel.style.removeProperty('--panel-max-height');
+    const { x, y, maxHeight } = calculateShowPosition(
+      this.#panel,
+      this.#selectActionInfo,
+      { minHeight: this.getMinHeight() },
+    );
 
     this.#panel.style.left = `${x}px`;
     this.#panel.style.top = `${y}px`;
+    this.#panel.style.setProperty('--panel-max-height', `${maxHeight}px`);
 
     const selectionEndPointRect = getSelectionEndPointRect(
       this.#selectActionInfo.selection,
       this.#selectActionInfo.mousePosition,
     );
-    const isSelectionAbovePanel = y < selectionEndPointRect.bottom + 8;
+    const isSelectionAbovePanel =
+      y < selectionEndPointRect.bottom + SELECTION_GAP;
     this.#panel.classList.toggle('enter-from-above', isSelectionAbovePanel);
     this.#panel.classList.toggle('enter-from-below', !isSelectionAbovePanel);
     return this;
+  }
+
+  getMinHeight() {
+    const content = this.#panel.querySelector(
+      `.${this.#mode}-section > .content`,
+    );
+    // 面板高度减去内容区可视高度，即内边距 + 头部 + 底部
+    const chromeHeight = this.#panel.offsetHeight - content.clientHeight;
+    return chromeHeight + Math.min(content.scrollHeight, MIN_CONTENT_HEIGHT);
   }
 
   handleDictAudioBtnClick() {
@@ -406,9 +439,6 @@ export default class Panel {
       this.#notFoundTextEl.textContent = message || NOT_FOUND_MESSAGE;
     }
 
-    // 渲染完内容后，实际高度可能发生变化，需要更新位置
-    this.updatePosition();
-
     return this;
   }
 
@@ -434,9 +464,6 @@ export default class Panel {
       this.#failedTextEl.textContent = message || TRANSLATE_FAILED_MESSAGE;
       this.#panel.classList.add('translate-failed');
     }
-
-    // 渲染完内容后，实际高度可能发生变化，需要更新位置
-    this.updatePosition();
 
     return this;
   }
@@ -465,6 +492,10 @@ export default class Panel {
       'enter-from-below',
     );
     this.#selectActionInfo = null;
+    this.#panel.style.removeProperty('--panel-max-height');
+    this.#shadow.querySelectorAll('.content, .source-text').forEach((el) => {
+      el.scrollTop = 0;
+    });
 
     this.#wordEl.textContent = '';
     this.#variantInfoEl.textContent = '';
