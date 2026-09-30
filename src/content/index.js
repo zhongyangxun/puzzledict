@@ -21,7 +21,7 @@ const logoButton = LogoButton.create();
 
 const panel = Panel.create();
 
-const TEXT_LENGTH_LIMIT = 5000;
+const TEXT_LENGTH_LIMIT = 2000;
 const MAX_PHRASE_WORD_COUNT = 3;
 
 // 词典词元：纯字母，或字母间夹 ' / -（可多段，如 bird's-eye）
@@ -29,8 +29,8 @@ const isWordToken = (token) => /^[a-zA-Z]+(?:['-][a-zA-Z]+)*$/.test(token);
 
 const isSingleWord = (text) => {
   const trimmedText = text.trim();
-  if (trimmedText.length < 2 || trimmedText.length > TEXT_LENGTH_LIMIT)
-    return false;
+  // 含单个字母（如 a / I），走词典查询
+  if (!trimmedText || trimmedText.length > TEXT_LENGTH_LIMIT) return false;
   return isWordToken(trimmedText);
 };
 
