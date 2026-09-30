@@ -31,13 +31,26 @@ const distance = (pointA, pointB) => {
   );
 };
 
+// 弹出元素与选区的间距
+export const SELECTION_GAP = 8;
+// 弹出元素与视口边缘的最小间距
+const VIEWPORT_MARGIN = 10;
+// 未传入 minHeight 时的默认最小可用高度
+const MIN_USABLE_HEIGHT = 120;
+
 /**
  * 计算弹出元素的位置
  * @param {HTMLElement} showElement 弹出元素
  * @param {Object} selectActionInfo 选择动作信息
- * @returns {Object} 弹出元素的位置
+ * @param {Object} [options]
+ * @param {number} [options.minHeight] 弹出元素可接受的最小高度，所在一侧放不下时改用整个视口高度
+ * @returns {{ x: number, y: number, maxHeight: number }} 弹出元素的位置，以及所在一侧可容纳的最大高度
  */
-export const calculateShowPosition = (showElement, selectActionInfo) => {
+export const calculateShowPosition = (
+  showElement,
+  selectActionInfo,
+  { minHeight = MIN_USABLE_HEIGHT } = {},
+) => {
   const { selection, mousePosition } = selectActionInfo;
   const { start: startPointRect, end: endPointRect } = getSelectionPointRects(
     selection,
@@ -48,7 +61,7 @@ export const calculateShowPosition = (showElement, selectActionInfo) => {
   // *选区首行左侧不一定是选区段落左侧，例如从某行中间开始，从左往右，自上到下开始选
   let x = startPointRect.left;
   // 默认在选区文字下方弹出
-  let y = endPointRect.bottom + 8;
+  let placeAbove = false;
 
   const viewportWidth = document.documentElement.clientWidth;
   const viewportHeight = document.documentElement.clientHeight;
@@ -69,28 +82,47 @@ export const calculateShowPosition = (showElement, selectActionInfo) => {
   ) {
     x = topLeft.x;
 
-    // 选中多行，且鼠标释放点接近选区首行左上角时，将弹出位置 y 轴坐标调整到选区上方
-    const selectedMultiLines = endPointRect.bottom > startPointRect.bottom;
-    selectedMultiLines && (y = topLeft.y - showElementHeight - 8);
+    // 选中多行，且鼠标释放点接近选区首行左上角时，优先在选区上方弹出
+    placeAbove = endPointRect.bottom > startPointRect.bottom;
   } else {
     x = bottomRight.x - showElementWidth;
   }
 
   // 弹出位置 x 轴坐标不超过视口宽度
   if (x + showElementWidth > viewportWidth) {
-    x = viewportWidth - showElementWidth - 10;
+    x = viewportWidth - showElementWidth - VIEWPORT_MARGIN;
   }
 
   // 弹出位置 x 轴坐标最小值为 10px, 与视口左边缘保持一定间距
-  if (x < 10) x = 10;
+  if (x < VIEWPORT_MARGIN) x = VIEWPORT_MARGIN;
 
-  // 弹出位置 y 轴坐标最小值为 10px, 与视口顶部保持一定间距
-  if (y < 10) y = 10;
+  const spaceAbove = startPointRect.top - SELECTION_GAP - VIEWPORT_MARGIN;
+  const spaceBelow =
+    viewportHeight - endPointRect.bottom - SELECTION_GAP - VIEWPORT_MARGIN;
+  const fits = (above) =>
+    showElementHeight <= (above ? spaceAbove : spaceBelow);
 
-  // 选区下方视口剩余高度无法容纳弹出元素时，将弹出位置 y 轴调整到选区上方
-  if (y + showElementHeight > viewportHeight) {
-    y = startPointRect.top - showElementHeight - 8;
+  // 优先侧放不下时换到另一侧；两侧都放不下时选空间更大的一侧
+  if (!fits(placeAbove)) {
+    placeAbove = fits(!placeAbove) ? !placeAbove : spaceAbove > spaceBelow;
   }
 
-  return { x, y };
+  let maxHeight = placeAbove ? spaceAbove : spaceBelow;
+  // 内容本身比最小高度还矮时，按内容高度判断即可
+  if (maxHeight < Math.min(minHeight, showElementHeight)) {
+    maxHeight = viewportHeight - VIEWPORT_MARGIN * 2;
+  }
+
+  const height = Math.min(showElementHeight, maxHeight);
+  let y = placeAbove
+    ? startPointRect.top - SELECTION_GAP - height
+    : endPointRect.bottom + SELECTION_GAP;
+
+  // 所有调整完成后再统一限制在视口内
+  y = Math.max(
+    VIEWPORT_MARGIN,
+    Math.min(y, viewportHeight - height - VIEWPORT_MARGIN),
+  );
+
+  return { x, y, maxHeight };
 };

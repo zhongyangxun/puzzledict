@@ -1,6 +1,7 @@
 <style>
   :host {
     --panel-width: 340px;
+    --panel-height-limit: 480px;
     --primary: oklch(0.52 0.14 195);
     --muted: oklch(0.94 0.006 240);
     --card: oklch(1 0 0);
@@ -55,7 +56,15 @@
   .panel {
     position: fixed;
     z-index: 2147483647;
+    display: flex;
+    flex-direction: column;
     width: var(--panel-width);
+    /* --panel-max-height 由 JS 按选区上下的可用空间写入 */
+    max-height: min(
+      var(--panel-height-limit),
+      calc(100vh - 20px),
+      var(--panel-max-height, 100vh)
+    );
     background-color: var(--card);
     border-radius: 12px;
     box-shadow: 0 8px 20px var(--shadow);
@@ -93,8 +102,12 @@
     }
   }
 
-  .panel.mode-dict .dict-section {
-    display: block;
+  .panel.mode-dict .dict-section,
+  .panel.mode-translate .translate-section {
+    display: flex;
+    flex-direction: column;
+    /* 允许 flex 子项收缩到 max-height 以内，内容区才能滚动 */
+    min-height: 0;
   }
   .panel.mode-dict .translate-section {
     display: none;
@@ -103,11 +116,19 @@
   .panel.mode-translate .dict-section {
     display: none;
   }
-  .panel.mode-translate .translate-section {
-    display: block;
+
+  .dict-section > .content,
+  .translate-section > .content {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    /* 预留滚动条位置：避免出现滚动条时内容变窄重排，再次触发 ResizeObserver */
+    scrollbar-gutter: stable;
   }
 
   .header {
+    flex-shrink: 0;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -343,6 +364,22 @@
     font-weight: 400;
     color: var(--foreground);
     line-height: 1.625;
+  }
+
+  .source-text:not(.line-clamp-3) {
+    max-height: 160px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+
+  .translate-section .footer {
+    flex-shrink: 0;
+  }
+
+  .loading .translate-section .footer,
+  .translate-failed .translate-section .footer {
+    display: none;
   }
 
   .copy-btn {
@@ -694,41 +731,6 @@
       <div class="translation-section">
         <div class="translation-content">
           <p class="translation"></p>
-          <button class="copy-btn">
-            <span class="copy-icon">
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                <path
-                  d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-                ></path>
-              </svg>
-            </span>
-            <span class="copy-text">复制译文</span>
-            <span class="copied-icon">
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            </span>
-            <span class="copied-text">已复制</span>
-          </button>
         </div>
         <div class="skeleton-line-container">
           <p class="skeleton-line"></p>
@@ -756,6 +758,43 @@
           <span class="failed-text-content"> 翻译失败，请稍后重试 </span>
         </p>
       </div>
+    </div>
+    <div class="footer">
+      <button class="copy-btn">
+        <span class="copy-icon">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path
+              d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+            ></path>
+          </svg>
+        </span>
+        <span class="copy-text">复制译文</span>
+        <span class="copied-icon">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </span>
+        <span class="copied-text">已复制</span>
+      </button>
     </div>
   </div>
 </div>
