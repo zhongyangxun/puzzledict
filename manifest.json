@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "puzzledict",
-  "description": "带词根拆解的划词翻译，助你轻松阅读英文网页",
+  "name": "puzzledict - 词根拆解划词翻译",
+  "short_name": "puzzledict",
+  "description": "划词即译单词与句子，可查看高频词的词根词缀拆解，边读边积累词汇",
   "version": "1.0.6",
   "icons": {
     "16": "icons/icon-16.png",
