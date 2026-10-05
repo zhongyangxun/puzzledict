@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Move items here into a new version section when cutting a release. -->
 
+## [1.0.6] - 2026-10-05
+
+### Changed
+
+- Highlight word-root breakdown in the store description
+- Improve English TTS listening experience
+
+### Fixed
+
+- Translate panel could overflow the viewport when translating long text
+- Translation failure for single-letters
+- Translation failure for text exceeding 600 characters (text of up to 2,000 characters is now supported)
+
 ## [1.0.5] - 2026-09-17
 
 ### Fixed
@@ -58,7 +71,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show word roots and affixes
 - Pronunciation
 
-[Unreleased]: https://github.com/zhongyangxun/puzzledict/compare/v1.0.5...HEAD
+[Unreleased]: https://github.com/zhongyangxun/puzzledict/compare/v1.0.6...HEAD
+[1.0.6]: https://github.com/zhongyangxun/puzzledict/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/zhongyangxun/puzzledict/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/zhongyangxun/puzzledict/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/zhongyangxun/puzzledict/compare/v1.0.2...v1.0.3
