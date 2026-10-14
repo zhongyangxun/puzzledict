@@ -1,5 +1,23 @@
 import { createHash } from 'node:crypto';
-import { relative } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { dirname, join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const TOKENS_MARKER = '/* @tokens */';
+const TOKENS_PATH = join(
+  dirname(fileURLToPath(import.meta.url)),
+  '../src/shared/tokens.css',
+);
+
+export const readTokensCss = () => readFileSync(TOKENS_PATH, 'utf8');
+
+/** Replace the `@tokens` marker comment with shared token CSS. */
+export const injectTokens = (css) => {
+  if (!css.includes(TOKENS_MARKER)) {
+    return css;
+  }
+  return css.replaceAll(TOKENS_MARKER, readTokensCss());
+};
 
 const makePrefix = (filePath) => {
   const salt = relative(process.cwd(), filePath).replace(/\\/g, '/');
@@ -26,19 +44,23 @@ export const prefixCssVars = (css, prefix) => {
   return out;
 };
 
+const processStyleBlock = (css, id) =>
+  prefixCssVars(injectTokens(css), makePrefix(id));
+
 export const htmlPlugin = () => {
   return {
     name: 'html-string',
+    buildStart() {
+      this.addWatchFile(TOKENS_PATH);
+    },
     transform(code, id) {
       if (!id.endsWith('.html')) {
         return;
       }
 
-      let html = code;
-      html = html.replace(
+      const html = code.replace(
         /(<style>)([\s\S]*?)(<\/style>)/g,
-        (_, open, css, close) =>
-          open + prefixCssVars(css, makePrefix(id)) + close,
+        (_, open, css, close) => open + processStyleBlock(css, id) + close,
       );
 
       return {

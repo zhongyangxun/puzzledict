@@ -5,7 +5,7 @@ import terser from '@rollup/plugin-terser';
 import dotenv from 'dotenv';
 import copy from 'rollup-plugin-copy';
 
-import { htmlPlugin } from './rollup/html-plugin.js';
+import { htmlPlugin, injectTokens } from './rollup/html-plugin.js';
 
 dotenv.config();
 
@@ -83,6 +83,13 @@ export default [
           {
             src: 'popup.html',
             dest: 'dist',
+            transform: (contents) => {
+              const html = contents.toString();
+              return html.replace(
+                /(<style>)([\s\S]*?)(<\/style>)/g,
+                (_, open, css, close) => open + injectTokens(css) + close,
+              );
+            },
           },
           // JSON 数据压缩复制（去掉缩进和空白）
           {
@@ -118,7 +125,7 @@ export default [
         preventAssignment: true,
       }),
       terserPlugin,
-      watchFilesPlugin(['popup.html']),
+      watchFilesPlugin(['popup.html', 'src/shared/tokens.css']),
     ],
   },
 ];

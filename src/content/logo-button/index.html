@@ -1,20 +1,17 @@
 <style>
+  /* @tokens */
+
+  /* Button-specific aliases / overrides on top of shared tokens */
   :host {
-    --primary: oklch(0.52 0.14 195);
-    --surface: oklch(1 0 0);
-    --ring: oklch(0.88 0.008 240);
-    --shadow: oklch(0 0 0 / 15%);
+    --surface: var(--card);
+    --ring: var(--border);
     --shadow-hover: oklch(0 0 0 / 22%);
-    --focus-ring: oklch(0.52 0.14 195);
+    --focus-ring: var(--primary);
   }
 
   :host(.dark) {
-    --primary: oklch(0.62 0.14 195);
     --surface: oklch(0.28 0.012 240);
     --ring: oklch(1 0 0 / 14%);
-    --shadow: oklch(0 0 0 / 15%);
-    --shadow-hover: oklch(0 0 0 / 22%);
-    --focus-ring: oklch(0.72 0.14 195);
   }
 
   .logo-button {
