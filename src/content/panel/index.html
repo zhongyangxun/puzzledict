@@ -4,6 +4,7 @@
   :host {
     --panel-width: 340px;
     --panel-height-limit: 480px;
+    --source-text-expanded-max-height: 160px;
   }
 
   * {
@@ -340,7 +341,7 @@
   }
 
   .source-text:not(.line-clamp-3) {
-    max-height: 160px;
+    max-height: var(--source-text-expanded-max-height);
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;

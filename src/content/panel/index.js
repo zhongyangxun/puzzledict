@@ -215,7 +215,12 @@ export default class Panel {
     const { x, y, maxHeight } = calculateShowPosition(
       this.#panel,
       this.#selectActionInfo,
-      { minHeight: this.getMinHeight() },
+      {
+        minHeight: this.getMinHeight(),
+        // 占位高度取原文展开后的高度，可避免原文展开时原先空间不够而跳到空间更大的一侧
+        // 例如原本在选中文本下侧空间弹出面板，但面板展开时下侧空间不够，跳到空间更大的上侧
+        placementHeight: this.getExpandedPlacementHeight(),
+      },
     );
 
     this.#panel.style.left = `${x}px`;
@@ -240,6 +245,25 @@ export default class Panel {
     // 面板高度减去内容区可视高度，即内边距 + 头部 + 底部
     const chromeHeight = this.#panel.offsetHeight - content.clientHeight;
     return chromeHeight + Math.min(content.scrollHeight, MIN_CONTENT_HEIGHT);
+  }
+
+  // 原文展开后的面板高度
+  getExpandedPlacementHeight() {
+    const style = getComputedStyle(this.#host);
+    const panelHeightLimit = parseFloat(
+      style.getPropertyValue('--panel-height-limit'),
+    );
+    const sourceTextMaxHeight = parseFloat(
+      style.getPropertyValue('--source-text-expanded-max-height'),
+    );
+    // 被 line-clamp 截断时 scrollHeight 仍是原文完整高度；已展开或未显示时增量为 0
+    const sourceTextExtraHeight =
+      Math.min(this.#sourceTextEl.scrollHeight, sourceTextMaxHeight) -
+      this.#sourceTextEl.clientHeight;
+    return Math.min(
+      panelHeightLimit,
+      this.#panel.offsetHeight + Math.max(0, sourceTextExtraHeight),
+    );
   }
 
   handleDictAudioBtnClick() {

@@ -44,12 +44,13 @@ const MIN_USABLE_HEIGHT = 120;
  * @param {Object} selectActionInfo 选择动作信息
  * @param {Object} [options]
  * @param {number} [options.minHeight] 弹出元素可接受的最小高度，所在一侧放不下时改用整个视口高度
+ * @param {number} [options.placementHeight] 弹出元素占位高度，用于判断空间高度是否能容纳下弹出元素
  * @returns {{ x: number, y: number, maxHeight: number }} 弹出元素的位置，以及所在一侧可容纳的最大高度
  */
 export const calculateShowPosition = (
   showElement,
   selectActionInfo,
-  { minHeight = MIN_USABLE_HEIGHT } = {},
+  { minHeight = MIN_USABLE_HEIGHT, placementHeight } = {},
 ) => {
   const { selection, mousePosition } = selectActionInfo;
   const { start: startPointRect, end: endPointRect } = getSelectionPointRects(
@@ -99,8 +100,8 @@ export const calculateShowPosition = (
   const spaceAbove = startPointRect.top - SELECTION_GAP - VIEWPORT_MARGIN;
   const spaceBelow =
     viewportHeight - endPointRect.bottom - SELECTION_GAP - VIEWPORT_MARGIN;
-  const fits = (above) =>
-    showElementHeight <= (above ? spaceAbove : spaceBelow);
+  const heightToFit = placementHeight ?? showElementHeight;
+  const fits = (above) => heightToFit <= (above ? spaceAbove : spaceBelow);
 
   // 优先侧放不下时换到另一侧；两侧都放不下时选空间更大的一侧
   if (!fits(placeAbove)) {
