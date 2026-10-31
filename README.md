@@ -12,7 +12,7 @@ Chrome 划词翻译插件，支持词根拆解。
 
 ## 安装
 
-- [Chrome 商店](https://chromewebstore.google.com/detail/puzzledict/fjnbhpmpglmpaaehjpjajflmhnifjjoi)
+- [Chrome 商店](https://chromewebstore.google.com/detail/puzzledict/fjnbhpmpglmpaaehjpjajflmhnifjjoi?utm_source=github&utm_medium=referral)
 - [发布页](https://github.com/zhongyangxun/puzzledict/releases)
 
 ## 署名
