@@ -12,7 +12,7 @@ A Chrome extension for translating selected text, with word-root analysis.
 
 ## Install
 
-- [Chrome Web Store](https://chromewebstore.google.com/detail/puzzledict/fjnbhpmpglmpaaehjpjajflmhnifjjoi)
+- [Chrome Web Store](https://chromewebstore.google.com/detail/puzzledict/fjnbhpmpglmpaaehjpjajflmhnifjjoi?utm_source=github&utm_medium=referral)
 - [Releases](https://github.com/zhongyangxun/puzzledict/releases)
 
 ## Attribution
