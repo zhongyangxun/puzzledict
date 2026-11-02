@@ -1,6 +1,4 @@
-import { getTranslateCache, setTranslateCache } from './cache.js';
 import { DAILY_QUOTA_EXCEEDED_CODE, TRANSLATE_URL } from '../../lib/api.js';
-import { FORCE_API } from '../../lib/build-env.js';
 import {
   DAILY_QUOTA_EXCEEDED_MESSAGE,
   NOT_FOUND_MESSAGE,
@@ -34,20 +32,9 @@ const getMessage = (status, data) => {
 
 export const translateText = async (
   text,
-  { clientId, timeoutMs = REQUEST_TIMEOUT_MS },
+  { clientId, timeoutMs = REQUEST_TIMEOUT_MS } = {},
 ) => {
   const trimed = text.trim();
-
-  if (!FORCE_API) {
-    const cache = await getTranslateCache(trimed);
-    if (cache) {
-      return {
-        status: 200,
-        message: TRANSLATE_SUCCESS_MESSAGE,
-        data: cache,
-      };
-    }
-  }
 
   const response = await postJson(
     TRANSLATE_URL,
@@ -59,10 +46,6 @@ export const translateText = async (
     response,
     getMessage,
   );
-
-  if (status === 200 && !FORCE_API) {
-    await setTranslateCache(trimed, data);
-  }
 
   return { status, message, data };
 };

@@ -11,9 +11,14 @@ import { PRONUNCIATION_FIX_MAP } from '../lib/pronunciation.js';
 import {
   DICT_FAILED_MESSAGE,
   TRANSLATE_FAILED_MESSAGE,
+  TRANSLATE_SUCCESS_MESSAGE,
 } from '../lib/result-messages.js';
 import { queryDictionary } from '../service/dict-api/dictionary-api.js';
 import { preconnect } from '../service/preconnect.js';
+import {
+  getTranslateCache,
+  setTranslateCache,
+} from '../service/translate/cache.js';
 import { translateText } from '../service/translate/translate.js';
 
 markTiming('sw-eval');
@@ -198,11 +203,12 @@ async function handleQueryDictionary(text) {
   // 获取原型词
   const exchangeWord = variantInfo?.exchangeWord ?? lookupKey;
 
-  // 三层逐级降级查找（不用 else if，避免中间层失败时跳过后续降级路径）
+  // 逐级降级查找（不用 else if，避免中间层失败时跳过后续降级路径）
   // 1. 本地词库直接命中
   // 2. 通过变体信息查原型词（免网络请求）
-  // 3. 请求远程 API
-  // 4. 有道翻译兜底
+  // 3. 查询兜底翻译缓存
+  // 4. 请求远程 API
+  // 5. 有道翻译兜底
   if (definition) {
     // 清洗`translation` 中可能包含的变体信息（变体信息应只由 `variantInfo` 提供）
     const { translation } = definition;
@@ -226,6 +232,21 @@ async function handleQueryDictionary(text) {
   // 本地词库未命中，尝试通过变体信息查原型词
   if (!definition && variantInfo) {
     definition = dict[exchangeWord];
+  }
+
+  // 提前查询兜底翻译缓存，避免兜底翻译时才查到缓存，浪费一次失败的词典 API 查询
+  if (!definition) {
+    const cache = await readTranslateCache(text);
+    if (cache) {
+      return {
+        isSuccess: true,
+        fallbackTranslation: true,
+        data: {
+          query: text,
+          translation: cache.translation,
+        },
+      };
+    }
   }
 
   // 仍然没有结果，请求 API
@@ -259,38 +280,23 @@ async function handleQueryDictionary(text) {
     }
   }
 
-  // 兜底：有道翻译
+  // 兜底：有道翻译。缓存与回声判断由 handleTranslateSentence 负责
   if (!definition) {
-    markTiming('api.translate.start');
-    let status = null;
-    let message = null;
-    let data = null;
-    try {
-      const clientId = await getClientId();
-      ({ status, message, data } = await translateText(text, { clientId }));
-    } catch (err) {
-      console.error('有道翻译兜底失败', err);
-      status = 500;
-      message = TRANSLATE_FAILED_MESSAGE;
-    }
-
-    const translation = data?.translation?.trim();
-    const isEchoed = translation?.toLowerCase() === text.trim().toLowerCase();
-
-    markTiming('api.translate.end');
-    if (status === 200 && translation && !isEchoed) {
+    const translated = await handleTranslateSentence(text);
+    if (translated.isSuccess) {
       return {
         isSuccess: true,
         fallbackTranslation: true,
         data: {
           query: text,
-          translation,
+          translation: translated.data.translation,
         },
       };
     }
 
-    if (status !== 200) {
-      errMessage = message;
+    // 回声或空白译文保留词典阶段的错误信息
+    if (translated.status !== 200) {
+      errMessage = translated.message;
     }
   }
 
@@ -327,16 +333,76 @@ async function handleQueryDictionary(text) {
   }
 }
 
+// 可用译文：去掉空白后仍有内容，并且不是原文回声（忽略大小写）
+function usableTranslation(text, translation) {
+  const trimmedTranslation = translation?.trim() ?? '';
+  const hasContent = trimmedTranslation !== '';
+  const isEcho = trimmedTranslation.toLowerCase() === text.trim().toLowerCase();
+
+  if (hasContent && !isEcho) return trimmedTranslation;
+  return '';
+}
+
+async function readTranslateCache(text) {
+  if (FORCE_API) return null;
+  try {
+    const cache = await getTranslateCache(text.trim());
+    const translation = usableTranslation(text, cache?.translation);
+    return translation ? { ...cache, translation } : null;
+  } catch (err) {
+    // 缓存仅用于优化，读取失败时继续请求远程 API
+    console.error('读取翻译缓存失败', err);
+    return null;
+  }
+}
+
 async function handleTranslateSentence(text) {
   markTiming('api.translate.start');
-  const clientId = await getClientId();
-  const { status, message, data } = await translateText(text, { clientId });
-  markTiming('api.translate.end');
-  return {
-    isSuccess: status === 200,
-    message,
-    data,
-  };
+  try {
+    const cache = await readTranslateCache(text);
+    if (cache) {
+      return {
+        isSuccess: true,
+        status: 200,
+        message: TRANSLATE_SUCCESS_MESSAGE,
+        data: cache,
+      };
+    }
+
+    const clientId = await getClientId();
+    const { status, message, data } = await translateText(text, { clientId });
+    const translation = usableTranslation(text, data?.translation);
+
+    if (status === 200 && translation) {
+      const cached = { ...data, translation };
+      if (!FORCE_API) {
+        await setTranslateCache(text.trim(), cached);
+      }
+      return {
+        isSuccess: true,
+        status,
+        message,
+        data: cached,
+      };
+    }
+
+    return {
+      isSuccess: false,
+      status,
+      message: status === 200 ? TRANSLATE_FAILED_MESSAGE : message,
+      data: null,
+    };
+  } catch (err) {
+    console.error('有道翻译失败', err);
+    return {
+      isSuccess: false,
+      status: 500,
+      message: TRANSLATE_FAILED_MESSAGE,
+      data: null,
+    };
+  } finally {
+    markTiming('api.translate.end');
+  }
 }
 
 // 插件安装或更新时触发
