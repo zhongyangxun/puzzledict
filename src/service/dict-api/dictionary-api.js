@@ -1,33 +1,20 @@
-import {
-  parseJsonResponse,
-  postJson,
-  REQUEST_TIMEOUT_MS,
-} from '../api-client.js';
-import { getDictCache, setDictCache } from './cache.js';
 import { DICT_LOOKUP_URL } from '../../lib/api.js';
-import { FORCE_API } from '../../lib/build-env.js';
 import {
   DICT_FAILED_MESSAGE,
   DICT_SUCCESS_MESSAGE,
   NOT_FOUND_MESSAGE,
   RATE_LIMIT_MESSAGE,
 } from '../../lib/result-messages.js';
+import {
+  parseJsonResponse,
+  postJson,
+  REQUEST_TIMEOUT_MS,
+} from '../api-client.js';
 
 export async function queryDictionary(
   text,
   { clientId, timeoutMs = REQUEST_TIMEOUT_MS },
 ) {
-  if (!FORCE_API) {
-    const cache = await getDictCache(text);
-    if (cache) {
-      return {
-        status: 200,
-        message: DICT_SUCCESS_MESSAGE,
-        data: cache,
-      };
-    }
-  }
-
   const response = await postJson(
     DICT_LOOKUP_URL,
     { lookup_key: text },
@@ -38,10 +25,6 @@ export async function queryDictionary(
     response,
     getMessage,
   );
-
-  if (status === 200 && !FORCE_API) {
-    await setDictCache(text, data);
-  }
 
   return { status, message, data };
 }
