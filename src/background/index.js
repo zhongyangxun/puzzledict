@@ -177,6 +177,20 @@ function cleanVariantInfo(translation) {
   return result.join('\n');
 }
 
+function cleanDefinition(definition) {
+  if (!definition) return null;
+
+  const { translation } = definition;
+  let newTranslation = cleanVariantInfo(translation);
+  if (newTranslation && newTranslation !== translation) {
+    return {
+      ...definition,
+      translation: newTranslation,
+    };
+  }
+  return definition;
+}
+
 async function handleQueryDictionary(text) {
   const [dict, reverseIndex] = await Promise.all([
     loadDict(),
@@ -207,8 +221,8 @@ async function handleQueryDictionary(text) {
   // 逐级降级查找（不用 else if，避免中间层失败时跳过后续降级路径）
   // 1. 本地词库直接命中
   // 2. 通过变体信息查原型词（免网络请求）
-  // 3. 查询兜底翻译缓存
-  // 4. 查询词典 API 缓存
+  // 3. 查询词典 API 缓存
+  // 4. 查询兜底翻译缓存
   // 5. 请求远程词典 API
   // 6. 有道翻译兜底
   if (definition) {
@@ -236,6 +250,21 @@ async function handleQueryDictionary(text) {
     definition = dict[exchangeWord];
   }
 
+  // 查询词典 API 缓存
+  if (!definition) {
+    if (!FORCE_API) {
+      try {
+        definition = await getDictCache(text);
+        if (definition) {
+          definition = cleanDefinition(definition);
+        }
+      } catch (err) {
+        // 缓存仅用于优化，读取失败时不影响后续步骤
+        console.error('读取词典缓存失败', err);
+      }
+    }
+  }
+
   // 提前查询兜底翻译缓存，避免兜底翻译时才查到缓存，浪费一次失败的词典 API 查询
   if (!definition) {
     const cache = await readTranslateCache(text);
@@ -251,56 +280,38 @@ async function handleQueryDictionary(text) {
     }
   }
 
-  // 仍然没有结果，先查询词典 API 缓存，再请求远程 API
+  // 仍然没有结果，请求词典 API
   if (!definition) {
-    if (!FORCE_API) {
-      try {
-        definition = await getDictCache(text);
-      } catch (err) {
-        // 缓存仅用于优化，读取失败时继续请求远程 API
-        console.error('读取词典缓存失败', err);
-      }
+    markTiming('api.dict.start');
+    let status = null;
+    let message = null;
+    let data = null;
+    try {
+      const clientId = await getClientId();
+      ({ status, message, data } = await queryDictionary(text, { clientId }));
+    } catch (err) {
+      console.error('请求 API 查词失败', err);
+      status = 500;
+      message = DICT_FAILED_MESSAGE;
     }
+    markTiming('api.dict.end');
 
-    if (!definition) {
-      markTiming('api.dict.start');
-      let status = null;
-      let message = null;
-      let data = null;
-      try {
-        const clientId = await getClientId();
-        ({ status, message, data } = await queryDictionary(text, { clientId }));
-      } catch (err) {
-        console.error('请求 API 查词失败', err);
-        status = 500;
-        message = DICT_FAILED_MESSAGE;
-      }
-      markTiming('api.dict.end');
-
-      if (status === 200) {
-        definition = data;
-        if (!FORCE_API) {
-          try {
-            await setDictCache(text, data);
-          } catch (err) {
-            // 缓存写入失败不影响本次查询结果
-            console.error('写入词典缓存失败', err);
-          }
+    if (status === 200) {
+      definition = data;
+      if (!FORCE_API) {
+        try {
+          await setDictCache(text, data);
+        } catch (err) {
+          // 缓存写入失败不影响本次查询结果
+          console.error('写入词典缓存失败', err);
         }
-      } else {
-        errMessage = message;
       }
+    } else {
+      errMessage = message;
     }
 
     if (definition) {
-      const { translation } = definition;
-      let newTranslation = cleanVariantInfo(translation);
-      if (newTranslation && newTranslation !== translation) {
-        definition = {
-          ...definition,
-          translation: newTranslation,
-        };
-      }
+      definition = cleanDefinition(definition);
     }
   }
 
@@ -374,7 +385,7 @@ async function readTranslateCache(text) {
     const translation = usableTranslation(text, cache?.translation);
     return translation ? { ...cache, translation } : null;
   } catch (err) {
-    // 缓存仅用于优化，读取失败时继续请求远程 API
+    // 缓存仅用于优化，读取失败时不影响后续步骤
     console.error('读取翻译缓存失败', err);
     return null;
   }
