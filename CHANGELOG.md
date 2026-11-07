@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- Move items here into a new version section when cutting a release. -->
 
+## [1.0.8] - 2026-11-07
+
+### Changed
+
+- Expand README with motivation, usage flow, architecture, and screenshots
+- In word lookup, prioritize reading from the dictionary to reduce unnecessary fallback translation cache reads
+- Attribute Chrome Web Store visits from the GitHub README
+
+### Fixed
+
+- Dictionary lookup still requested the remote API when a fallback translation was already cached
+
 ## [1.0.7] - 2026-10-19
 
 ### Changed
@@ -82,7 +94,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show word roots and affixes
 - Pronunciation
 
-[Unreleased]: https://github.com/zhongyangxun/puzzledict/compare/v1.0.7...HEAD
+[Unreleased]: https://github.com/zhongyangxun/puzzledict/compare/v1.0.8...HEAD
+[1.0.8]: https://github.com/zhongyangxun/puzzledict/compare/v1.0.7...v1.0.8
 [1.0.7]: https://github.com/zhongyangxun/puzzledict/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/zhongyangxun/puzzledict/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/zhongyangxun/puzzledict/compare/v1.0.4...v1.0.5

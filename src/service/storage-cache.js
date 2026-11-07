@@ -1,9 +1,11 @@
+const DEFAULT_EXPIRE_TIME_KEY = '__EXPIRE_TIME__';
+
 export const createStorageCache = ({
   cacheKey,
   maxEntries,
   deleteCount,
   ttlMs,
-  expireTimeKey = '__EXPIRE_TIME__',
+  expireTimeKey = DEFAULT_EXPIRE_TIME_KEY,
 }) => {
   return {
     get: async (key) => {
