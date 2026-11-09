@@ -5,6 +5,7 @@ import {
   PRECONNECT,
   QUERY_DICT,
   TRANSLATE_SENTENCE,
+  TTS_LOG,
 } from '../lib/message-types.js';
 import { logMarks, markTiming } from '../lib/perf.js';
 import { PRONUNCIATION_FIX_MAP } from '../lib/pronunciation.js';
@@ -484,6 +485,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       preconnect().finally(() => {
         markTiming('preconnect.select-text.end');
       });
+    }
+    case TTS_LOG: {
+      const { content } = message;
+      console.log('tts log', content);
+      // TODO: write the logs to a file like JSON file.
     }
   }
 });

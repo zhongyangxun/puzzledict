@@ -1,4 +1,6 @@
 import panelHtml from './index.html';
+import { debounce } from '../../lib/debounce.js';
+import { TTS_LOG } from '../../lib/message-types.js';
 import {
   TRANSLATE_FAILED_MESSAGE,
   NOT_FOUND_MESSAGE,
@@ -67,6 +69,21 @@ function isValidPOS(pos) {
   return VALID_POS_TAGS.has(pos);
 }
 
+let ttslogContent = '';
+
+const recordTTSLog = debounce(() => {
+  try {
+    chrome.runtime.sendMessage({
+      type: TTS_LOG,
+      content: ttslogContent,
+    });
+
+    ttslogContent = '';
+  } catch (err) {
+    console.error('Rcord TTS log failed', err);
+  }
+}, 5 * 1000);
+
 // temporary timing log
 let lastTime = performance.now();
 
@@ -84,10 +101,11 @@ function logInterval(message, type = 'info') {
   const delta = now - lastTime;
   lastTime = now;
 
-  console.log(
-    `%c+${delta.toFixed(2)}ms  ${message}`,
-    styles[type] || styles.info,
-  );
+  const content = `+${delta.toFixed(2)}ms  ${message}`;
+  ttslogContent += content + '\n';
+  recordTTSLog();
+
+  console.log(`%c${content}`, styles[type] || styles.info);
 }
 
 export default class Panel {
@@ -367,7 +385,7 @@ export default class Panel {
     speechSynthesis.cancel();
     this.#panel.classList.remove('playing');
 
-    logInterval('stopAudio end');
+    logInterval('stopAudio end\n');
 
     return this;
   }
