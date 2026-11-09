@@ -325,6 +325,12 @@ export default class Panel {
         utterance.voice = this.#voice;
       }
 
+      utterance.onstart = () => {
+        logInterval(
+          `onstart: ${this.#voice?.name}, local=${this.#voice?.localService}`,
+          'success',
+        );
+      };
       utterance.onend = () => {
         logInterval('speak normally end', 'success');
         this.stopAudio();
@@ -335,6 +341,7 @@ export default class Panel {
 
       this.#utterance = utterance;
       speechSynthesis.speak(utterance);
+      // *speak start doesn't mean real speaking, `utterance.onstart` does
       logInterval('speak start', 'success');
       this.#panel.classList.add('playing');
     }, 20);
