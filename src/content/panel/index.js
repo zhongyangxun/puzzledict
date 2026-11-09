@@ -67,6 +67,29 @@ function isValidPOS(pos) {
   return VALID_POS_TAGS.has(pos);
 }
 
+// temporary timing log
+let lastTime = performance.now();
+
+function logInterval(message, type = 'info') {
+  const now = performance.now();
+  // ... 计算 delta 的逻辑
+
+  const styles = {
+    info: 'color: #1890ff;',
+    success: 'color: #52c41a; font-weight: bold;',
+    warn: 'color: #faad14; font-weight: bold;',
+    error: 'color: #f5222d; font-weight: bold;',
+  };
+
+  const delta = now - lastTime;
+  lastTime = now;
+
+  console.log(
+    `%c+${delta.toFixed(2)}ms  ${message}`,
+    styles[type] || styles.info,
+  );
+}
+
 export default class Panel {
   static #instance = null;
   #host = null;
@@ -179,11 +202,13 @@ export default class Panel {
   }
 
   initUtterance() {
+    logInterval('initUtterance');
     this.resolveVoice();
 
     // Voices often load asynchronously; refresh when the list becomes available.
     if (typeof speechSynthesis !== 'undefined') {
       speechSynthesis.addEventListener('voiceschanged', () => {
+        logInterval('voiceschanged');
         this.resolveVoice();
       });
     }
@@ -192,6 +217,7 @@ export default class Panel {
   }
 
   resolveVoice() {
+    logInterval('resolveVoice');
     if (typeof speechSynthesis === 'undefined') {
       return this;
     }
@@ -275,11 +301,13 @@ export default class Panel {
   }
 
   playAudio(text) {
+    logInterval('click play buttton');
     if (!text?.trim()) {
       return this;
     }
 
     if (!this.#voice) {
+      console.warn('no voice, need resolve voice');
       this.resolveVoice();
     }
 
@@ -298,6 +326,7 @@ export default class Panel {
       }
 
       utterance.onend = () => {
+        logInterval('speak normally end', 'success');
         this.stopAudio();
       };
       utterance.onerror = () => {
@@ -306,6 +335,7 @@ export default class Panel {
 
       this.#utterance = utterance;
       speechSynthesis.speak(utterance);
+      logInterval('speak start', 'success');
       this.#panel.classList.add('playing');
     }, 20);
 
@@ -313,6 +343,7 @@ export default class Panel {
   }
 
   stopAudio() {
+    logInterval('stopAudio begin');
     if (this.#speakTimer != null) {
       clearTimeout(this.#speakTimer);
       this.#speakTimer = null;
@@ -324,8 +355,12 @@ export default class Panel {
       this.#utterance = null;
     }
 
+    logInterval('stopAudio: before cancel');
+
     speechSynthesis.cancel();
     this.#panel.classList.remove('playing');
+
+    logInterval('stopAudio end');
 
     return this;
   }
