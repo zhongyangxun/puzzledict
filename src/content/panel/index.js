@@ -41,11 +41,13 @@ const ATTR_PRONUNCIATION = 'data-pronunciation';
 // 内容区至少保留约 3 行文本（padding-top 12 + 3 × 22.75）
 const MIN_CONTENT_HEIGHT = 80;
 
-// Common English voices: Chrome / Edge / macOS.
+// Prefer local voices: Google US English is remote and can delay onstart by seconds.
 const PREFERRED_ENGLISH_VOICES = [
-  'google us english',
-  'microsoft aria',
-  'samantha',
+  'microsoft mark', // win local voice, good
+  'microsoft david', // win local voice, slightly mechanical
+  'microsoft zira', // win local voice, slightly mechanical, but still ok
+  'samantha', // mac voice, maybe local
+  'google us english', // remote voice, good
 ];
 
 export const PANEL_MODE = {
